@@ -1297,7 +1297,7 @@ struct pfx_table {
     struct lpfst_node *ipv4;
     struct lpfst_node *ipv6;
     pfx_update_fp update_fp;
-    pthread_rwlock_t lock;
+    ...;
 };
 
 /* @} */
