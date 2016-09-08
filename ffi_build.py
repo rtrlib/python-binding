@@ -11,8 +11,6 @@ ffibuilder = FFI()
 ffibuilder.set_source("_rtrlib",
                       """
                       #include <rtrlib/rtrlib.h>
-                      #include <sys/types.h>
-                      #include <pthread.h>
                       """,
                       libraries=['rtr'])
 
