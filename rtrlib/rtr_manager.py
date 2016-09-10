@@ -60,17 +60,28 @@ class RTRManager(object):
     def __del__(self):
         lib.rtr_mgr_free(self.rtr_manager_config)
 
+    def __enter__(self):
+        self.start()
+        self.wait_for_sync()
+
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.stop()
+
+        return False
+
     def start(self):
         """
         start RTRManager
         """
-        print(lib.rtr_mgr_start(self.rtr_manager_config))
+        lib.rtr_mgr_start(self.rtr_manager_config)
 
     def stop(self):
         """
         stop RTRManager
         """
-        print(lib.rtr_mgr_stop(self.rtr_manager_config))
+        lib.rtr_mgr_stop(self.rtr_manager_config)
 
     def is_synced(self):
         """
