@@ -1,10 +1,12 @@
 # -*- coding:utf8 -*-
 
+from __future__ import absolute_import, unicode_literals
+
 from enum import Enum
 
 from _rtrlib import lib
 
-class RTRSocketList:
+class RTRSocketList(object):
 
     def __init__(self, sockets, length):
         self._sockets = sockets
@@ -21,7 +23,7 @@ class RTRSocketList:
         return RtrSocket(self._sockets[key])
 
 
-class RTRSocket:
+class RTRSocket(object):
 
     def __init__(self, socket):
         self._socket = socket

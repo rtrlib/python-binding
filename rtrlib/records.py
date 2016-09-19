@@ -1,11 +1,13 @@
 # -*- coding: utf8 -*-
 
+from __future__ import absolute_import, unicode_literals
+
 from _rtrlib import ffi
 
 from .util import ip_addr_to_str
 from .rtr_socket import RTRSocket
 
-class PFXRecord:
+class PFXRecord(object):
 
     def __init__(self, record):
         self._record = record
@@ -31,7 +33,7 @@ class PFXRecord:
         return RTRSocket(self._record.socket)
 
 
-class SPKIRecord:
+class SPKIRecord(object):
 
     def __init__(self, record):
         self._record = record

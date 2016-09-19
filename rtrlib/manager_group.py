@@ -1,9 +1,11 @@
 # -*- coding:utf8 -*-
 
+from __future__ import absolute_import, unicode_literals
+
 from .rtr_socket import RTRSocket, RTRSocketList
 from .manager_status import ManagerStatus
 
-class ManagerGroup:
+class ManagerGroup(object):
 
     def __init__(self, group):
         self._group = group

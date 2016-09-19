@@ -3,6 +3,8 @@
 This module contains the wrapper around librtrs RTR connection manager.
 """
 
+from __future__ import absolute_import, unicode_literals
+
 import six
 import weakref
 import time
