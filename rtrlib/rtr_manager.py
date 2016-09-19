@@ -6,6 +6,7 @@ This module contains the wrapper around librtrs RTR connection manager.
 import six
 import weakref
 import time
+import logging
 
 from enum import Enum
 from six.moves.urllib import parse
@@ -19,6 +20,8 @@ from .rtr_socket import RTRSocket
 from .manager_group import ManagerGroup
 from .records import PFXRecord, SPKIRecord
 
+LOG = logging.getLogger(__name__)
+
 class RTRManager(object):
     """
     Wrapper arround rtr_manager
@@ -29,6 +32,8 @@ class RTRManager(object):
                  spki_update_fp=ffi.NULL, status_fp=ffi.NULL,
                  status_fp_data=None
                  ):
+
+        LOG.debug('Initilizing RTR manager')
 
         if isinstance(port, six.integer_types):
             port = str(port)
@@ -113,12 +118,14 @@ class RTRManager(object):
         """
         start RTRManager
         """
+        LOG.debug("Starting RTR manager")
         lib.rtr_mgr_start(self.rtr_manager_config)
 
     def stop(self):
         """
         stop RTRManager
         """
+        LOG.debug("Stoping RTR manager")
         lib.rtr_mgr_stop(self.rtr_manager_config)
 
     def is_synced(self):
@@ -138,6 +145,8 @@ class RTRManager(object):
         """
         Validates BGP prefix and returns state as PfxvState enum
         """
+
+        LOG.debug("Validating %s/%s from AS %s", prefix, mask_len, asn)
 
         if not is_integer(asn):
             raise TypeError("asn must be integer not %s" % type(asn))
@@ -171,6 +180,7 @@ class PfxvState(Enum):
 
 def status_callback_wrapper(func):
     def inner(rtr_mgr_group, group_status, rtr_socket, data):
+        LOG.debug("Calling status callback")
         func(
              ManagerGroup(rtr_mgr_group),
              ManagerStatus(group_status),
@@ -182,6 +192,7 @@ def status_callback_wrapper(func):
 
 def pfx_update_callback_wrapper(func):
     def inner(pfx_table, pfx_record, added):
+        LOG.debug("Calling pfx update callback")
         func(
              PFXRecord(pfx_record),
              added,
@@ -190,6 +201,7 @@ def pfx_update_callback_wrapper(func):
 
 def spki_update_callback_wrapper(func):
     def inner(record, added):
+        LOG.debug("Calling spki update callback")
         func(
              SPKIRecord(record),
              added,

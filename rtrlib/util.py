@@ -1,9 +1,13 @@
 # -*- coding: utf8 -*-
 
+import logging
 import six
 
 from _rtrlib import ffi, lib
 from .exceptions import *
+
+
+LOG = logging.getLogger(__name__)
 
 def ip_str_to_addr(ip_str):
     addr = ffi.new('struct lrtr_ip_addr *')
@@ -50,4 +54,5 @@ def create_ffi_callback(callback, name):
     """
     Creates a cffi callback.
     """
+    LOG.debug('Creating callback %s', name)
     ffi.def_extern(name=name)(callback)
