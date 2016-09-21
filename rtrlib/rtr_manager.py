@@ -13,12 +13,11 @@ from enum import Enum
 from _rtrlib import ffi, lib
 
 import six
+import rtrlib.callbacks as callbacks
 
-from .util import create_ffi_callback, to_bytestr, is_integer, ip_str_to_addr
+from .util import to_bytestr, is_integer, ip_str_to_addr
 from .exceptions import RTRInitError, PFXException
-from .rtr_socket import RTRSocket
-from .manager_group import ManagerGroup, ManagerGroupStatus
-from .records import PFXRecord, SPKIRecord
+
 
 LOG = logging.getLogger(__name__)
 
@@ -40,11 +39,10 @@ class RTRManager(object):
         The value must be >= 1s and <= 7200s (two hours).
     """
 
-    def __init__(self, host, port, refresh_interval=3600, expire_interval=7200,
-                 retry_interval=600, pfx_update_fp=ffi.NULL,
-                 spki_update_fp=ffi.NULL, status_fp=ffi.NULL,
-                 status_fp_data=None
-                ):
+    def __init__(
+            self, host, port, refresh_interval=3600, expire_interval=7200,
+            retry_interval=600, status_fp_data=None
+        ):
 
         LOG.debug('Initilizing RTR manager')
 
@@ -54,18 +52,6 @@ class RTRManager(object):
             pass
         else:
             raise TypeError('port must be integer or string')
-
-        if pfx_update_fp != ffi.NULL:
-            create_ffi_callback(pfx_update_callback_wrapper(pfx_update_fp), "pfx_update_callback")
-            pfx_update_fp = lib.pfx_update_callback
-
-        if spki_update_fp != ffi.NULL:
-            create_ffi_callback(spki_update_callback_wrapper(spki_update_fp), "spki_update_callback")
-            spki_update_fp = lib.spki_update_callback
-
-        if status_fp != ffi.NULL:
-            create_ffi_callback(status_callback_wrapper(status_fp), "rtr_mgr_status_callback")
-            status_fp = lib.rtr_mgr_status_callback
 
         if status_fp_data:
             self.status_fp_data = ffi.new_handle(status_fp_data)
@@ -98,9 +84,9 @@ class RTRManager(object):
                                refresh_interval,
                                expire_interval,
                                retry_interval,
-                               pfx_update_fp,
-                               spki_update_fp,
-                               status_fp,
+                               callbacks.PFX_UPDATE_CALLBACK,
+                               callbacks.SPKI_UPDATE_CALLBACK,
+                               callbacks.STATUS_CALLBACK,
                                self.status_fp_data
                               )
 
@@ -189,60 +175,3 @@ class PfxvState(Enum):
     valid = lib.BGP_PFXV_STATE_VALID
     not_found = lib.BGP_PFXV_STATE_NOT_FOUND
     invalid = lib.BGP_PFXV_STATE_INVALID
-
-
-def status_callback_wrapper(func):
-    """
-    Wraps the given python function and wraps it to hide cffi specifics.
-    This wrapper is only for the status callback of the rtrlib manager.
-    """
-    def inner(rtr_mgr_group, group_status, rtr_socket, data_handle):
-        """
-        Hides c structures
-        """
-        if data_handle == ffi.NULL:
-            data = None
-        else:
-            data = ffi.from_handle(data_handle)
-
-        func(
-            ManagerGroup(rtr_mgr_group),
-            ManagerGroupStatus(group_status),
-            RTRSocket(rtr_socket),
-            data
-            )
-    return inner
-
-
-def pfx_update_callback_wrapper(func):
-    """
-    Wraps the given python function and wraps it to hide cffi specifics.
-    This wrapper is only for the pfx update callback of the rtrlib manager.
-    """
-    def inner(pfx_table, pfx_record, added):
-        """
-        Hides c structures
-        """
-        LOG.debug("Calling pfx update callback")
-        func(
-            PFXRecord(pfx_record),
-            added,
-            )
-    return inner
-
-
-def spki_update_callback_wrapper(func):
-    """
-    Wraps the given python function and wraps it to hide cffi specifics.
-    This wrapper is only for the spki update callback of the rtrlib manager.
-    """
-    def inner(record, added):
-        """
-        Hides c structures
-        """
-        LOG.debug("Calling spki update callback")
-        func(
-            SPKIRecord(record),
-            added,
-            )
-    return inner

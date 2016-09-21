@@ -20,7 +20,6 @@ class RTRSocketList(object):
         self._length = length
 
     def __getitem__(self, key):
-        print(key)
         if not isinstance(key, int):
             raise TypeError("Index must be int")
         if key >= self._length:

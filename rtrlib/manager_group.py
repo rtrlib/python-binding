@@ -15,7 +15,6 @@ class ManagerGroup(object):
 
     def __init__(self, group):
         self._group = group
-        print(group)
 
     @property
     def preference(self):

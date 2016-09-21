@@ -66,10 +66,3 @@ def is_integer(var):
     Checks if var is an integer
     """
     return isinstance(var, six.integer_types)
-
-def create_ffi_callback(callback, name):
-    """
-    Creates a cffi callback.
-    """
-    LOG.debug('Creating callback %s', name)
-    ffi.def_extern(name=name)(callback)
