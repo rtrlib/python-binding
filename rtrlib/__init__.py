@@ -1,3 +1,6 @@
+"""
+rtrlib-python - a cffi based rtrlib wrapper
+"""
 
 from __future__ import absolute_import, unicode_literals
 

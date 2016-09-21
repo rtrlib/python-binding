@@ -5,35 +5,46 @@ This module contains the wrapper around librtrs RTR connection manager.
 
 from __future__ import absolute_import, unicode_literals
 
-import six
-import weakref
+
 import time
 import logging
 
 from enum import Enum
-from six.moves.urllib import parse
-from collections import namedtuple, defaultdict
 from _rtrlib import ffi, lib
 
-from .util import *
-from .exceptions import *
-from .manager_status import ManagerStatus
+import six
+
+from .util import create_ffi_callback, to_bytestr, is_integer, ip_str_to_addr
+from .exceptions import RTRInitError, PFXException
 from .rtr_socket import RTRSocket
-from .manager_group import ManagerGroup
+from .manager_group import ManagerGroup, ManagerGroupStatus
 from .records import PFXRecord, SPKIRecord
 
 LOG = logging.getLogger(__name__)
 
+
 class RTRManager(object):
     """
     Wrapper arround rtr_manager
+
+    :param str host: Hostname or ip of rpki cache server
+    :param str|int port: Port number
+    :param int: refresh_interval: Interval in seconds between serial queries \
+        that are sent to the server. Must be >= 1 and <= 86400s (one day)
+    :param int expire_interval: Stored validation records will be deleted if \
+        cache was unable to refresh data for this period. The value should be \
+        twice the refresh_interval. The value must be >= 600s (ten minutes) \
+        and <= 172800s (two days).
+    :param int retry_interval: This parameter specifes how long to wait \
+        (in seconfs) before retrying a failed Query. \
+        The value must be >= 1s and <= 7200s (two hours).
     """
 
-    def __init__(self, host, port, refresh_interval=30, expire_interval=600,
+    def __init__(self, host, port, refresh_interval=3600, expire_interval=7200,
                  retry_interval=600, pfx_update_fp=ffi.NULL,
                  spki_update_fp=ffi.NULL, status_fp=ffi.NULL,
                  status_fp_data=None
-                 ):
+                ):
 
         LOG.debug('Initilizing RTR manager')
 
@@ -91,7 +102,7 @@ class RTRManager(object):
                                spki_update_fp,
                                status_fp,
                                self.status_fp_data
-                            )
+                              )
 
         if ret == lib.RTR_ERROR:
             raise RTRInitError("Error during initilization")
@@ -159,16 +170,17 @@ class RTRManager(object):
         result = ffi.new('enum pfxv_state *')
 
         ret = lib.rtr_mgr_validate(self.rtr_manager_config,
-                                    asn,
-                                    ip_str_to_addr(prefix),
-                                    mask_len,
-                                    result
-                                   )
+                                   asn,
+                                   ip_str_to_addr(prefix),
+                                   mask_len,
+                                   result
+                                  )
 
         if ret == lib.PFX_ERROR:
             raise PFXException("An error occured during validation")
 
         return PfxvState(result[0])
+
 
 class PfxvState(Enum):
     """
@@ -179,33 +191,58 @@ class PfxvState(Enum):
     invalid = lib.BGP_PFXV_STATE_INVALID
 
 
-
 def status_callback_wrapper(func):
-    def inner(rtr_mgr_group, group_status, rtr_socket, data):
-        LOG.debug("Calling status callback")
-        func(
-             ManagerGroup(rtr_mgr_group),
-             ManagerStatus(group_status),
-             RTRSocket(rtr_socket),
-             ffi.from_handle(data)
-            )
+    """
+    Wraps the given python function and wraps it to hide cffi specifics.
+    This wrapper is only for the status callback of the rtrlib manager.
+    """
+    def inner(rtr_mgr_group, group_status, rtr_socket, data_handle):
+        """
+        Hides c structures
+        """
+        if data_handle == ffi.NULL:
+            data = None
+        else:
+            data = ffi.from_handle(data_handle)
 
+        func(
+            ManagerGroup(rtr_mgr_group),
+            ManagerGroupStatus(group_status),
+            RTRSocket(rtr_socket),
+            data
+            )
     return inner
+
 
 def pfx_update_callback_wrapper(func):
+    """
+    Wraps the given python function and wraps it to hide cffi specifics.
+    This wrapper is only for the pfx update callback of the rtrlib manager.
+    """
     def inner(pfx_table, pfx_record, added):
+        """
+        Hides c structures
+        """
         LOG.debug("Calling pfx update callback")
         func(
-             PFXRecord(pfx_record),
-             added,
+            PFXRecord(pfx_record),
+            added,
             )
     return inner
 
+
 def spki_update_callback_wrapper(func):
+    """
+    Wraps the given python function and wraps it to hide cffi specifics.
+    This wrapper is only for the spki update callback of the rtrlib manager.
+    """
     def inner(record, added):
+        """
+        Hides c structures
+        """
         LOG.debug("Calling spki update callback")
         func(
-             SPKIRecord(record),
-             added,
-             )
+            SPKIRecord(record),
+            added,
+            )
     return inner
