@@ -12,7 +12,7 @@ from _rtrlib import lib
 
 class RTRSocketList(object):
     """
-    List of :class:`~rtrlib.rtr_socket.RTRSocket`s
+    List of RTRSockets
     """
 
     def __init__(self, sockets, length):
@@ -34,7 +34,7 @@ class RTRSocket(object):
     """
     Wrapper around the rtr_socket struct
 
-    :param cdata socket rtr_socket struct
+    :param cdata socket: rtr_socket struct
     """
 
     def __init__(self, socket):

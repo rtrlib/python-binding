@@ -8,5 +8,6 @@ import logging
 
 from .rtr_manager import RTRManager
 
-
 logging.getLogger(__name__).addHandler(logging.NullHandler())
+
+__version__ = 0.1
