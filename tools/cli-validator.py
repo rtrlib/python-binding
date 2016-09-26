@@ -22,7 +22,6 @@ class GroupStatus(object):
         self.error = False
 
 def connection_status_collback(rtr_mgr_group, group_status, rtr_socket, data):
-    #print(group_status)
     if group_status == ManagerGroupStatus.ERROR:
         data.error = True
 
