@@ -1,0 +1,3 @@
+enum34
+six
+cffi==cffi>=1.4.0
