@@ -6,7 +6,7 @@ from __future__ import absolute_import, unicode_literals
 
 import logging
 
-from _rtrlib import ffi, lib
+from ._rtrlib import ffi, lib
 from .manager_group import ManagerGroup, ManagerGroupStatus
 from .rtr_socket import RTRSocket
 from .records import PFXRecord, SPKIRecord
@@ -47,6 +47,10 @@ def register_spki_update_callback(func):
     """
     Register RTR manager spki update callback
 
+    .. warning:: This callback is untested, because at the time of writing
+        no caching server with spki records was available.
+        It should work but might cause you computer to explode.
+
     :param function func: Callback function
     """
     global SPKI_UPDATE_CALLBACK
@@ -60,9 +64,9 @@ def register_spki_update_callback(func):
 
 def register_callback(callback, name):
     """
-    Registers a cffi callback.
+    Registers a cffi callback
     """
-    LOG.debug('Registring callback %s', name)
+    LOG.debug('Registering callback %s', name)
     ffi.def_extern(name=name)(callback)
 
 

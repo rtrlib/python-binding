@@ -3,7 +3,7 @@
 from __future__ import absolute_import, unicode_literals
 from enum import Enum
 
-from _rtrlib import lib
+from ._rtrlib import lib
 from .rtr_socket import RTRSocketList
 
 class ManagerGroup(object):
@@ -54,9 +54,9 @@ class ManagerGroupStatus(Enum):
     """RTR sockets are disconnected"""
 
     CONNECTING = lib.RTR_MGR_CONNECTING
-    """RTR sockets trying to establish a connection."""
+    """RTR sockets trying to establish a connection"""
     ESTABLISHED = lib.RTR_MGR_ESTABLISHED
-    """All RTR sockets of the group are synchronized with the rtr servers."""
+    """All RTR sockets of the group are synchronized with the rtr servers"""
 
     ERROR = lib.RTR_MGR_ERROR
-    """Error occured on at least one RTR socket."""
+    """Error occured on at least one RTR socket"""

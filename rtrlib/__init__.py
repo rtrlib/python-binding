@@ -9,7 +9,8 @@ from __future__ import absolute_import, unicode_literals
 
 import logging
 
-from .rtr_manager import RTRManager
+from .rtr_manager import RTRManager, PfxvState
+from .manager_group import ManagerGroupStatus
 from .callbacks import (register_status_callback,
                         register_pfx_update_callback,
                         register_spki_update_callback)

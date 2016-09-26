@@ -1,8 +1,6 @@
 typedef int... time_t;
 
 typedef int... pthread_t;
-typedef ... pthread_mutex_t;
-typedef ... pthread_rwlock_t;
 
 
 /*

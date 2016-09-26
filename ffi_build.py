@@ -8,7 +8,7 @@ BASEDIR = path.dirname(path.realpath(__file__))
 
 ffibuilder = FFI()
 
-ffibuilder.set_source("_rtrlib",
+ffibuilder.set_source("rtrlib._rtrlib",
                       """
                       #include <rtrlib/rtrlib.h>
                       """,

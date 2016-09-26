@@ -1,5 +1,9 @@
 # -*- coding: utf8 -*-
 """
+rtrlib.util
+-----------
+
+
 Utility functions and wrapper
 """
 
@@ -8,7 +12,7 @@ from __future__ import absolute_import, unicode_literals
 import logging
 import six
 
-from _rtrlib import ffi, lib
+from ._rtrlib import ffi, lib
 from .exceptions import IpConversionException
 
 
@@ -16,7 +20,7 @@ LOG = logging.getLogger(__name__)
 
 def ip_str_to_addr(ip_str):
     """
-    Converts an ip from string to rtrlib internal representation
+    Converts an IP from string to rtrlib internal representation
 
     :param str ip_str: IP address IPv4 and IPv6 are supported
     :return The IP address as cdata struct lrtr_ip_addr
@@ -31,7 +35,7 @@ def ip_str_to_addr(ip_str):
 
 def ip_addr_to_str(ip_addr):
     """
-    Converts an ip from rtrlib internal to string representation
+    Converts an IP from rtrlib internal to string representation
 
     :param cdata ip_addr: IP address as cdata struct lrtr_ip_addr
     :return IP address as string
@@ -45,7 +49,7 @@ def ip_addr_to_str(ip_addr):
 
 def to_bytestr(string):
     """
-    if input string is a unicode string convert to byte string
+    if input string is a Unicode string convert to byte string
     """
     if isinstance(string, six.text_type):
         return string.encode('utf8')
@@ -53,7 +57,7 @@ def to_bytestr(string):
 
 def to_unicodestr(string):
     """
-    if input string is a byte string convert to unicode string
+    if input string is a byte string convert to Unicode string
     """
 
     if isinstance(string, six.binary_type):

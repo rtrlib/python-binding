@@ -1,11 +1,14 @@
 # -*- coding: utf8 -*-
 """
-Collection of wrappers for *record structs of rtrlib
+rtrlib.records
+--------------
+
+Collection of wrappers for \*record structs of rtrlib
 """
 
 from __future__ import absolute_import, unicode_literals
 
-from _rtrlib import ffi
+from ._rtrlib import ffi
 
 from .util import ip_addr_to_str
 from .rtr_socket import RTRSocket
@@ -49,7 +52,7 @@ class PFXRecord(object):
     @property
     def socket(self):
         """
-        :class:`~rtrlib.rtr_socket.RTRSocket` this record was recieved in
+        :class:`~rtrlib.rtr_socket.RTRSocket` this record was received in
         """
         return RTRSocket(self._record.socket)
 
@@ -80,7 +83,7 @@ class SPKIRecord(object):
     @property
     def socket(self):
         """
-        :class:`~rtrlib.rtr_socket.RTRSocket` this record was recieved in
+        :class:`~rtrlib.rtr_socket.RTRSocket` this record was received in
         """
         return RTRSocket(self._record.socket)
 

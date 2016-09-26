@@ -1,20 +1,24 @@
 # -*- coding: utf8 -*-
 """
-Module for all custom exceptions.
+rtrlib.exceptions
+-----------------
+
+
+Module for all custom exceptions
 """
 
 from __future__ import absolute_import, unicode_literals
 
 
-class RtrlibException(Exception):
+class RTRlibException(Exception):
     """rtrlib exception base class"""
 
-class RTRInitError(RtrlibException):
-    """An error during initilization of occured"""
+class RTRInitError(RTRlibException):
+    """An error during initialization of occurred"""
 
 
-class PFXException(RtrlibException):
-    """An error occured during validation"""
+class PFXException(RTRlibException):
+    """An error occurred during validation"""
 
-class IpConversionException(RtrlibException):
-    """An Error during str to address conversion or the reverse occured"""
+class IpConversionException(RTRlibException):
+    """An Error during str to address conversion or the reverse occurred"""

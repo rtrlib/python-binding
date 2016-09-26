@@ -1,6 +1,8 @@
 # -*- coding: utf8 -*-
 """
-This module contains the wrapper around librtrs RTR connection manager.
+rtrlib.rtr_manager
+------------------
+
 """
 
 from __future__ import absolute_import, unicode_literals
@@ -10,7 +12,7 @@ import time
 import logging
 
 from enum import Enum
-from _rtrlib import ffi, lib
+from ._rtrlib import ffi, lib
 
 import six
 import rtrlib.callbacks as callbacks
@@ -26,16 +28,16 @@ class RTRManager(object):
     """
     Wrapper arround rtr_manager
 
-    :param str host: Hostname or ip of rpki cache server
+    :param str host: Hostname or IP of rpki cache server
     :param str|int port: Port number
-    :param int: refresh_interval: Interval in seconds between serial queries \
-        that are sent to the server. Must be >= 1 and <= 86400s (one day)
+    :param int refresh_interval: Interval in seconds between serial queries \
+        that are sent to the server. Must be >= 1 and <= 86400s (one day).
     :param int expire_interval: Stored validation records will be deleted if \
         cache was unable to refresh data for this period. The value should be \
         twice the refresh_interval. The value must be >= 600s (ten minutes) \
         and <= 172800s (two days).
-    :param int retry_interval: This parameter specifes how long to wait \
-        (in seconfs) before retrying a failed Query. \
+    :param int retry_interval: This parameter specifies how long to wait \
+        (in seconds) before retrying a failed Query. \
         The value must be >= 1s and <= 7200s (two hours).
     """
 
@@ -44,7 +46,7 @@ class RTRManager(object):
             retry_interval=600, status_fp_data=None
         ):
 
-        LOG.debug('Initilizing RTR manager')
+        LOG.debug('Initializing RTR manager')
 
         if isinstance(port, six.integer_types):
             port = str(port)
@@ -91,7 +93,7 @@ class RTRManager(object):
                               )
 
         if ret == lib.RTR_ERROR:
-            raise RTRInitError("Error during initilization")
+            raise RTRInitError("Error during initialization")
         elif ret == lib.RTR_INVALID_PARAM:
             raise RTRInitError("refresh_interval or the expire_interval "
                                "is invalid.")
@@ -115,27 +117,27 @@ class RTRManager(object):
 
     def start(self):
         """
-        start RTRManager
+        Start RTRManager
         """
         LOG.debug("Starting RTR manager")
         lib.rtr_mgr_start(self.rtr_manager_config)
 
     def stop(self):
         """
-        stop RTRManager
+        Stop RTRManager
         """
-        LOG.debug("Stoping RTR manager")
+        LOG.debug("Stopping RTR manager")
         lib.rtr_mgr_stop(self.rtr_manager_config)
 
     def is_synced(self):
         """
-        Detects if RTRManager is in sync
+        True, if RTRManager is fully synchronized
         """
         return lib.rtr_mgr_conf_in_sync(self.rtr_manager_config) == 1
 
     def wait_for_sync(self):
         """
-        Waits until RTRManager is in sync
+        Waits until RTRManager is synchronized
         """
         while not self.is_synced():
             time.sleep(0.2)
@@ -163,7 +165,7 @@ class RTRManager(object):
                                   )
 
         if ret == lib.PFX_ERROR:
-            raise PFXException("An error occured during validation")
+            raise PFXException("An error occurred during validation")
 
         return PfxvState(result[0])
 
@@ -173,5 +175,10 @@ class PfxvState(Enum):
     Wrapper for the pfxv_state enum
     """
     valid = lib.BGP_PFXV_STATE_VALID
+    """A valid certificate for the pfx_record exists"""
+
     not_found = lib.BGP_PFXV_STATE_NOT_FOUND
+    """No certificate for the route exists"""
+
     invalid = lib.BGP_PFXV_STATE_INVALID
+    """One or more records that match the input prefix exists in the pfx_table, but the prefix max_len or ASN doesn't match."""
