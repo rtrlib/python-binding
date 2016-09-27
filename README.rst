@@ -6,6 +6,8 @@ rtrlib-python is a cffi based python binding for rtrlib_.
 
 .. _rtrlib: https://github.com/rtrlib/rtrlib
 
+**WARNING: Early version api may change without notice.**
+
 Sphinx docs can be found in the docs directory and build with ``make html``.
 
 for usage examples see the tools directory
