@@ -1,7 +1,5 @@
 typedef int... time_t;
 
-typedef int... pthread_t;
-
 
 /*
  * This file is part of RTRlib.
@@ -613,12 +611,12 @@ struct rtr_socket {
     bool request_session_id;
     uint32_t serial_number;
     struct pfx_table *pfx_table;
-    pthread_t thread_id;
     rtr_connection_state_fp connection_state_fp;
     void *connection_state_fp_param;
     unsigned int version;
     bool has_received_pdus;
     struct spki_table *spki_table;
+    ...;
 };
 
 /**
