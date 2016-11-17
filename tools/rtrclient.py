@@ -57,12 +57,10 @@ def main():
 
     print("{:40}   {:3}   {:4}".format("Prefix", "Prefix Length", "ASN"))
     with RTRManager(args.hostname, args.port) as mgr:
-        signal.pause()
-
-
-
-
-
+        try:
+            signal.pause()
+        except KeyboardInterrupt:
+            pass
 
 if __name__ == '__main__':
     main()
