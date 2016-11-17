@@ -12,7 +12,7 @@ from __future__ import absolute_import, unicode_literals
 import logging
 import six
 
-from ._rtrlib import ffi, lib
+from _rtrlib import ffi, lib
 from .exceptions import IpConversionException
 
 

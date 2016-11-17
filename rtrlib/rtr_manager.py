@@ -12,7 +12,7 @@ import time
 import logging
 
 from enum import Enum
-from ._rtrlib import ffi, lib
+from _rtrlib import ffi, lib
 
 import six
 import rtrlib.callbacks as callbacks

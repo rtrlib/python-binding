@@ -6,7 +6,7 @@ from __future__ import absolute_import, unicode_literals
 
 import logging
 
-from ._rtrlib import ffi, lib
+from _rtrlib import ffi, lib
 from .manager_group import ManagerGroup, ManagerGroupStatus
 from .rtr_socket import RTRSocket
 from .records import PFXRecord, SPKIRecord
