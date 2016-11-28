@@ -1,3 +1,5 @@
+|docs|
+
 =============
 rtrlib-python
 =============
@@ -34,3 +36,8 @@ Requirements
 - six
 
 and a c compiler for building the module.
+
+
+.. |docs| image:: https://readthedocs.org/projects/python-rtrlib/badge/?version=latest
+    :target: http://python-rtrlib.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
