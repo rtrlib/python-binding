@@ -10,6 +10,7 @@ from __future__ import absolute_import, unicode_literals
 
 import time
 import logging
+import signal
 
 from enum import Enum
 from _rtrlib import ffi, lib
@@ -18,7 +19,7 @@ import six
 import rtrlib.callbacks as callbacks
 
 from .util import to_bytestr, is_integer, ip_str_to_addr
-from .exceptions import RTRInitError, PFXException
+from .exceptions import RTRInitError, PFXException, SyncTimeout
 
 
 LOG = logging.getLogger(__name__)
@@ -115,9 +116,11 @@ class RTRManager(object):
 
         return False
 
-    def start(self):
+    def start(self, wait=True):
         """
         Start RTRManager
+
+        :param bool wait: Wait for the manager to finish sync
         """
         LOG.debug("Starting RTR manager")
         lib.rtr_mgr_start(self.rtr_manager_config)
@@ -135,12 +138,28 @@ class RTRManager(object):
         """
         return lib.rtr_mgr_conf_in_sync(self.rtr_manager_config) == 1
 
-    def wait_for_sync(self):
+    def wait_for_sync(self, timeout=5):
         """
-        Waits until RTRManager is synchronized
+        Waits until RTRManager is synchronized.
+
+
+        :param int timeout:
+
+        :raises SyncTimeout: Raised if timeout is reached,
+            this does not mean that the sync failed,
+            only that it did not finish in time.
         """
+        def handler(signum, frame):
+            raise SyncTimeout()
+
+        if timeout > 0:
+            signal.signal(signal.SIGALRM, handler)
+            signal.alarm(timeout)
+
         while not self.is_synced():
             time.sleep(0.2)
+
+        signal.alarm(0)
 
     def validate(self, asn, prefix, mask_len):
         """

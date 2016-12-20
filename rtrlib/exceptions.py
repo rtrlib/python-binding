@@ -22,3 +22,6 @@ class PFXException(RTRlibException):
 
 class IpConversionException(RTRlibException):
     """An Error during str to address conversion or the reverse occurred"""
+
+class SyncTimeout(RTRlibException):
+    """The timeout was reached while waiting for sync"""
