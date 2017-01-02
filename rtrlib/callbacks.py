@@ -13,21 +13,9 @@ from .records import PFXRecord, SPKIRecord
 
 LOG = logging.getLogger(__name__)
 
-STATUS_CALLBACK = ffi.NULL
 PFX_UPDATE_CALLBACK = ffi.NULL
 SPKI_UPDATE_CALLBACK = ffi.NULL
 
-
-def register_status_callback(func):
-    """
-    Register RTR manager status callback
-
-    :param function func: Callback function
-    """
-    global STATUS_CALLBACK
-    register_callback(status_callback_wrapper(func), "rtr_mgr_status_callback")
-
-    STATUS_CALLBACK = lib.rtr_mgr_status_callback
 
 def register_pfx_update_callback(func):
     """
@@ -69,28 +57,21 @@ def register_callback(callback, name):
     LOG.debug('Registering callback %s', name)
     ffi.def_extern(name=name)(callback)
 
-
-def status_callback_wrapper(func):
+@ffi.def_extern(name="rtr_mgr_status_callback")
+def status_callback(rtr_mgr_group, group_status, rtr_socket, object_handle):
     """
     Wraps the given python function and wraps it to hide cffi specifics.
     This wrapper is only for the status callback of the rtrlib manager.
     """
-    def inner(rtr_mgr_group, group_status, rtr_socket, data_handle):
-        """
-        Hides c structures
-        """
-        if data_handle == ffi.NULL:
-            data = None
-        else:
-            data = ffi.from_handle(data_handle)
 
-        func(
-            ManagerGroup(rtr_mgr_group),
-            ManagerGroupStatus(group_status),
-            RTRSocket(rtr_socket),
-            data
-            )
-    return inner
+    object_ = ffi.from_handle(object_handle)
+
+    object_._status_callback(
+        ManagerGroup(rtr_mgr_group),
+        ManagerGroupStatus(group_status),
+        RTRSocket(rtr_socket),
+        object_._status_callback_data
+        )
 
 
 def pfx_update_callback_wrapper(func):

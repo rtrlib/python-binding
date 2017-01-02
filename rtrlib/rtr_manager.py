@@ -18,7 +18,7 @@ from _rtrlib import ffi, lib
 import six
 import rtrlib.callbacks as callbacks
 
-from .util import to_bytestr, is_integer, ip_str_to_addr
+from .util import to_bytestr, is_integer, is_string, ip_str_to_addr
 from .exceptions import RTRInitError, PFXException, SyncTimeout
 
 
@@ -40,26 +40,36 @@ class RTRManager(object):
     :param int retry_interval: This parameter specifies how long to wait \
         (in seconds) before retrying a failed Query. \
         The value must be >= 1s and <= 7200s (two hours).
+    :param function status_callback: status callback, called on status changes \
+        of the rtr manager
+    :param object status_callback_data: arbitrary data object passed to the \
+        callback.
+
+    :raises RTRInitError:
+
     """
 
     def __init__(
             self, host, port, refresh_interval=3600, expire_interval=7200,
-            retry_interval=600, status_fp_data=None
+            retry_interval=600, status_callback=None, status_callback_data=None
         ):
 
         LOG.debug('Initializing RTR manager')
 
-        if isinstance(port, six.integer_types):
+        if is_integer(port):
             port = str(port)
-        elif isinstance(port, six.string_types):
+        elif is_string(port):
             pass
         else:
             raise TypeError('port must be integer or string')
 
-        if status_fp_data:
-            self.status_fp_data = ffi.new_handle(status_fp_data)
+        self._status_callback_data = status_callback_data
+        self._handle = ffi.new_handle(self)
+
+        if status_callback:
+            self._status_callback = status_callback
         else:
-            self.status_fp_data = ffi.NULL
+            self._status_callback = ffi.NULL
 
         self.host = ffi.new('char[]', to_bytestr(host))
         self.port = ffi.new('char[]', to_bytestr(port))
@@ -89,8 +99,8 @@ class RTRManager(object):
                                retry_interval,
                                callbacks.PFX_UPDATE_CALLBACK,
                                callbacks.SPKI_UPDATE_CALLBACK,
-                               callbacks.STATUS_CALLBACK,
-                               self.status_fp_data
+                               lib.rtr_mgr_status_callback if self._status_callback != ffi.NULL else ffi.NULL,
+                               self._handle
                               )
 
         if ret == lib.RTR_ERROR:

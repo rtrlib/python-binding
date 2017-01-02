@@ -11,8 +11,7 @@ import logging
 
 from .rtr_manager import RTRManager, PfxvState
 from .manager_group import ManagerGroupStatus
-from .callbacks import (register_status_callback,
-                        register_pfx_update_callback,
+from .callbacks import (register_pfx_update_callback,
                         register_spki_update_callback)
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

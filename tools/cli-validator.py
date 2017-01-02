@@ -9,7 +9,7 @@ import sys
 
 from time import sleep
 
-from rtrlib import RTRManager, ManagerGroupStatus, register_status_callback
+from rtrlib import RTRManager, ManagerGroupStatus
 
 INPUT_REGEX = re.compile(
         r'^(?P<ip>[0-9a-fA-F.:]+) (?P<prefix>\d{1,3}) (?P<ASN>\d+)$'
@@ -30,12 +30,12 @@ def main():
         print("Usage: {} [host] [port]".format(sys.argv[0]))
         exit()
 
-    register_status_callback(connection_status_collback)
     status = GroupStatus()
     mgr = RTRManager(
                      sys.argv[1],
                      sys.argv[2],
-                     status_fp_data=status
+                     status_callback=connection_status_collback,
+                     status_callback_data=status
                     )
 
     mgr.start()

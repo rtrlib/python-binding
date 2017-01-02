@@ -70,3 +70,9 @@ def is_integer(var):
     Checks if var is an integer
     """
     return isinstance(var, six.integer_types)
+
+def is_string(var):
+    """
+    Checks if var is a string
+    """
+    return isinstance(var, six.string_types)

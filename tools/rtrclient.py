@@ -21,7 +21,7 @@ def pfx_callback(pfx_record, added):
                 )
     )
 
-def spki_callback(spki_table, spki_record, added):
+def spki_callback(spki_record, added):
     if added:
         c = '+'
     else:

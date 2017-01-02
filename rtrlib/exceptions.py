@@ -14,11 +14,11 @@ class RTRlibException(Exception):
     """rtrlib exception base class"""
 
 class RTRInitError(RTRlibException):
-    """An error during initialization of occurred"""
+    """An error during initialization of the RTR manager occurred"""
 
 
 class PFXException(RTRlibException):
-    """An error occurred during validation"""
+    """An error during validation occurred"""
 
 class IpConversionException(RTRlibException):
     """An Error during str to address conversion or the reverse occurred"""
