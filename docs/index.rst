@@ -14,10 +14,11 @@ supports Internet-Draft draft-ietf-sidr-rpki-rtr-rfc6810-bis, which
 enables the maintenance of router keys. Router keys are required to
 deploy BGPSEC.
 
-Since this is a work in progress currently only basic validation against one cache is supported.
+Currently only basic validation against one cache is supported.
 
 Installation
 ------------
+
 Requirements
 ''''''''''''''
 - python 2.7 or python 3
@@ -59,6 +60,8 @@ Example
         print('Prefix not found')
     else:
         print('Invalid response')
+
+    mgr.stop()
 
 
 Further examples can be found in the tools_ dir of the repository.
