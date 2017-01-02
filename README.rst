@@ -25,8 +25,6 @@ Features supported so far:
 
 Install Instructions
 --------------------
-rtrlib-python is not on pypi yet, but you can just run ``python setup.py install``.
-It is probably a good idea to use a virtualenv.
 
 Requirements
 ''''''''''''
@@ -35,7 +33,18 @@ Requirements
 - enum34
 - six
 
-and a c compiler for building the module.
+and a c compiler at build time.
+
+If you are using virtualenv the Requirements are installed automatically during the install step, otherwise you have to use your platforms package management tool or just run pip install -r requirements.txt.
+
+
+Download and Installation
+'''''''''''''''''''''''''
+
+- ``git clone https://github.com/rtrlib/python-binding.git``
+- ``cd python-binding``
+- ``python setup.py build``
+- ``python setup.py install``
 
 
 .. |docs| image:: https://readthedocs.org/projects/python-rtrlib/badge/?version=latest
