@@ -116,14 +116,24 @@ class RTRManager(object):
 
         return False
 
-    def start(self, wait=True):
+    def start(self, wait=True, timeout=5):
         """
         Start RTRManager
 
-        :param bool wait: Wait for the manager to finish sync
+        :param wait: Wait for the manager to finish sync
+        :type wait: :class:`bool`
+        :param timeout:
+        :type timeout: :class:`int`
+
+        :raises SyncTimeout: Raised if timeout is reached,
+            this does not mean that the sync failed,
+            only that it did not finish in time.
         """
         LOG.debug("Starting RTR manager")
         lib.rtr_mgr_start(self.rtr_manager_config)
+
+        if wait:
+            wait_for_sync(timeout)
 
     def stop(self):
         """
@@ -142,8 +152,8 @@ class RTRManager(object):
         """
         Waits until RTRManager is synchronized.
 
-
-        :param int timeout:
+        :param timeout:
+        :type timeout: :class:`int`
 
         :raises SyncTimeout: Raised if timeout is reached,
             this does not mean that the sync failed,
