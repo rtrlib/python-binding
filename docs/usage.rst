@@ -1,3 +1,4 @@
+.. _Usage Examples:
 
 Usage Examples
 ==============
