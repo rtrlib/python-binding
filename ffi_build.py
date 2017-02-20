@@ -15,6 +15,7 @@ ffibuilder.cdef("""
         extern "Python" void rtr_mgr_status_callback(const struct rtr_mgr_group *, enum rtr_mgr_status, const struct rtr_socket *, void *);
         extern "Python" void pfx_update_callback(struct pfx_table *pfx_table, const struct pfx_record record, const bool added);
         extern "Python" void spki_update_callback(struct spki_table *spki_table, const struct spki_record record, const bool added);
+        extern "Python" void pfx_table_callback(const struct pfx_record *pfx_record, void *data);
                 """)
 
 ffibuilder.set_source("_rtrlib",

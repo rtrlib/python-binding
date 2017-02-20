@@ -56,6 +56,26 @@ class PFXRecord(object):
         """
         return RTRSocket(self._record.socket)
 
+    def __str__(self):
+        return "{prefix}/{min}-{max} {asn}".format(prefix=self.prefix,
+                                                   min=self.min_len,
+                                                   max=self.max_len,
+                                                   asn=self.asn
+                                                   )
+
+
+def copy_pfx_record(record):
+    """Copy a pfx record."""
+    cdata = record._record
+    new_record = ffi.new('struct pfx_record *')
+    new_record.asn = cdata.asn
+    new_record.prefix = cdata.prefix
+    new_record.min_len = cdata.min_len
+    new_record.max_len = cdata.max_len
+    new_record.socket = cdata.socket
+
+    return PFXRecord(new_record)
+
 
 class SPKIRecord(object):
     """

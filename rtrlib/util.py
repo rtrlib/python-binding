@@ -11,6 +11,9 @@ from __future__ import absolute_import, unicode_literals
 
 import logging
 import six
+import threading
+
+from six.moves import queue
 
 from _rtrlib import ffi, lib
 from .exceptions import IpConversionException
@@ -76,3 +79,68 @@ def is_string(var):
     Checks if var is a string
     """
     return isinstance(var, six.string_types)
+
+
+class StoppableThread(threading.Thread):
+    """
+    Thread class with a stop() method.
+
+    The thread itself has to check regularly for the stopped() condition.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(StoppableThread, self).__init__(*args, **kwargs)
+        self._stop_event = threading.Event()
+
+    def stop(self):
+        self._stop_event.set()
+
+    def stopped(self):
+        return self._stop_event.isSet()
+
+
+class CallbackGenerator(object):
+
+    def __init__(self, function, callback, args=()):
+        def inner_callback(pfx_record, data):
+            while not data.thread.stopped():
+                try:
+                    data.callback(pfx_record, data.queue)
+                    break
+                except queue.Full:
+                    pass
+            return
+
+        self.callback = callback
+        self.queue = queue.Queue()
+        new_args = list(args)
+        new_args.extend((inner_callback, self))
+        self.thread = StoppableThread(
+                                      target=function,
+                                      args=new_args,
+                                      daemon=True,
+                                      )
+
+        self.thread.start()
+
+    def __del__(self,):
+        self.thread.stop()
+
+    def __iter__(self,):
+        return self
+
+    def __next__(self,):
+        while(True):
+            try:
+                LOG.debug('About to take item out of queue')
+                item = self.queue.get_nowait()
+                LOG.debug('Took "%s" out of the queue', item)
+                self.queue.task_done()
+                return item
+            except queue.Empty:
+                if self.thread.is_alive() or self.queue.qsize() > 0:
+                    LOG.debug('Queue not yet filled, looping')
+                    continue
+                else:
+                    LOG.debug('Queue empty stopping iteration')
+                    raise StopIteration()

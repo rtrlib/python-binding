@@ -11,14 +11,20 @@ from __future__ import absolute_import, unicode_literals
 import time
 import logging
 import signal
+import threading
 
 from enum import Enum
 from _rtrlib import ffi, lib
 
-import six
 import rtrlib.callbacks as callbacks
+import rtrlib.records as records
 
-from .util import to_bytestr, is_integer, is_string, ip_str_to_addr
+from .util import (to_bytestr,
+                   is_integer,
+                   is_string,
+                   ip_str_to_addr,
+                   CallbackGenerator
+                   )
 from .exceptions import RTRInitError, PFXException, SyncTimeout
 
 
@@ -207,6 +213,76 @@ class RTRManager(object):
             raise PFXException("An error occurred during validation")
 
         return PfxvState(result[0])
+
+    def for_each_ipv4_record(self, callback, data):
+        r"""
+        Iterate over all ipv4 records of the pfx table.
+
+        callback must take two arguments, the pfx_record and the data object.
+
+        For a more pythonic alternative see :py:meth:`ipv4_records`
+
+        :param callable callback: called for every record in the pfx table
+        :param object data: arbitrary data object \
+            that is passed to the callback function
+        """
+        data_handle = ffi.new_handle((callback, data))
+
+        lib.rtr_mgr_for_each_ipv4_record(
+            self.rtr_manager_config,
+            lib.pfx_table_callback,
+            data_handle
+            )
+
+    def ipv4_records(self):
+        r"""
+        Return iterator over all ipv4 records in the pfx table.
+
+        This iterator utilises threads to execute retrieve the records. \
+        If that is a problem for you take a look at \
+        :py:meth:`for_each_ipv4_record`.
+        """
+        def callback(record, data):
+            LOG.debug('Putting "%s" in queue', record)
+            data.put_nowait(records.copy_pfx_record(record))
+
+        generator = CallbackGenerator(self.for_each_ipv4_record, callback)
+        return generator
+
+    def for_each_ipv6_record(self, callback, data):
+        r"""
+        Iterate over all ipv6 records of the pfx table.
+
+        callback must take two arguments, the pfx_record and the data object.
+
+        For a more pythonic alternative see :py:meth:`ipv6_records`
+
+        :param callable callback: called for every record in the pfx table
+        :param object data: arbitrary data object \
+            that is passed to the callback function
+        """
+        data_handle = ffi.new_handle((callback, data))
+
+        lib.rtr_mgr_for_each_ipv6_record(
+            self.rtr_manager_config,
+            lib.pfx_table_callback,
+            data_handle
+            )
+
+    def ipv6_records(self):
+        r"""
+        Return iterator over all ipv6 records in the pfx table.
+
+        This iterator utilises threads to execute retrieve the records. \
+        If that is a problem for you take a look at \
+        :py:meth:`for_each_ipv6_record`.
+        """
+        def callback(record, data):
+            LOG.debug('Putting "%s" in queue', record)
+            data.put_nowait(records.copy_pfx_record(record))
+
+        generator = CallbackGenerator(self.for_each_ipv6_record, callback)
+        return generator
 
 
 class PfxvState(Enum):

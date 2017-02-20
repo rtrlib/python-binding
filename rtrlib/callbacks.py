@@ -74,6 +74,17 @@ def status_callback(rtr_mgr_group, group_status, rtr_socket, object_handle):
         )
 
 
+@ffi.def_extern(name="pfx_table_callback")
+def pfx_table_callback(pfx_record, object_handle):
+    """
+    Wraps the pfx_table callback, used for iteration of the pfx table,
+    to hide cffi specifics
+    """
+    callback, data = ffi.from_handle(object_handle)
+
+    callback(PFXRecord(pfx_record), data)
+
+
 def pfx_update_callback_wrapper(func):
     """
     Wraps the given python function and wraps it to hide cffi specifics.
