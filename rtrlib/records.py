@@ -13,6 +13,7 @@ from _rtrlib import ffi
 from .util import ip_addr_to_str
 from .rtr_socket import RTRSocket
 
+
 class PFXRecord(object):
     """
     Wrapper around the pfx_record struct
@@ -91,7 +92,6 @@ class SPKIRecord(object):
         Origin AS number
         """
         return self._record.asn
-
 
     @property
     def ski(self):

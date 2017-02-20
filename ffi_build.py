@@ -46,7 +46,5 @@ ffibuilder.set_source("_rtrlib",
                       """,
                       libraries=['rtr'])
 
-
-
 if __name__ == "__main__":
     ffibuilder.compile(verbose=True)

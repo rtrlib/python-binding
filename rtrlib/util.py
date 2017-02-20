@@ -3,7 +3,6 @@
 rtrlib.util
 -----------
 
-
 Utility functions and wrapper
 """
 
@@ -21,9 +20,10 @@ from .exceptions import IpConversionException
 
 LOG = logging.getLogger(__name__)
 
+
 def ip_str_to_addr(ip_str):
     """
-    Converts an IP from string to rtrlib internal representation
+    Convert an IP from string to rtrlib internal representation.
 
     :param str ip_str: IP address IPv4 and IPv6 are supported
     :return The IP address as cdata struct lrtr_ip_addr
@@ -36,9 +36,10 @@ def ip_str_to_addr(ip_str):
 
     return addr
 
+
 def ip_addr_to_str(ip_addr):
     """
-    Converts an IP from rtrlib internal to string representation
+    Convert an IP from rtrlib internal to string representation.
 
     :param cdata ip_addr: IP address as cdata struct lrtr_ip_addr
     :return IP address as string
@@ -50,34 +51,29 @@ def ip_addr_to_str(ip_addr):
         raise IpConversionException("ip_addr object could not be converted")
     return to_unicodestr(ffi.string(ip_str))
 
+
 def to_bytestr(string):
-    """
-    if input string is a Unicode string convert to byte string
-    """
+    """If input string is a Unicode string convert to byte string."""
     if isinstance(string, six.text_type):
         return string.encode('utf8')
     return string
 
-def to_unicodestr(string):
-    """
-    if input string is a byte string convert to Unicode string
-    """
 
+def to_unicodestr(string):
+    """If input string is a byte string convert to Unicode string."""
     if isinstance(string, six.binary_type):
         return string.decode('utf8')
 
     return string
 
+
 def is_integer(var):
-    """
-    Checks if var is an integer
-    """
+    """Check if var is an integer."""
     return isinstance(var, six.integer_types)
 
+
 def is_string(var):
-    """
-    Checks if var is a string
-    """
+    """Check if var is a string."""
     return isinstance(var, six.string_types)
 
 

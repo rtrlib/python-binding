@@ -31,6 +31,7 @@ def register_pfx_update_callback(func):
 
     PFX_UPDATE_CALLBACK = lib.pfx_update_callback
 
+
 def register_spki_update_callback(func):
     """
     Register RTR manager spki update callback
@@ -56,6 +57,7 @@ def register_callback(callback, name):
     """
     LOG.debug('Registering callback %s', name)
     ffi.def_extern(name=name)(callback)
+
 
 @ffi.def_extern(name="rtr_mgr_status_callback")
 def status_callback(rtr_mgr_group, group_status, rtr_socket, object_handle):

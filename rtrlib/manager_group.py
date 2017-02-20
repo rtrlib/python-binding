@@ -6,6 +6,7 @@ from enum import Enum
 from _rtrlib import lib
 from .rtr_socket import RTRSocketList
 
+
 class ManagerGroup(object):
     """
     Wrapper around the rtr_mgr_group struct
@@ -46,9 +47,7 @@ class ManagerGroup(object):
 
 
 class ManagerGroupStatus(Enum):
-    """
-    Wrapper around the C enum rtr_mgr_status
-    """
+    """Wrapper around the C enum rtr_mgr_status."""
 
     CLOSED = lib.RTR_MGR_CLOSED
     """RTR sockets are disconnected"""

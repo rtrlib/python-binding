@@ -17,13 +17,16 @@ INPUT_REGEX = re.compile(
 
 OUTPUT_FORMAT = "{}/{} {}: {}"
 
+
 class GroupStatus(object):
     def __init__(self):
         self.error = False
 
+
 def connection_status_collback(rtr_mgr_group, group_status, rtr_socket, data):
     if group_status == ManagerGroupStatus.ERROR:
         data.error = True
+
 
 def main():
     if len(sys.argv) < 3:
@@ -47,7 +50,7 @@ def main():
 
     for line in fileinput.input('-'):
         line = line.strip()
-        match  = INPUT_REGEX.match(line)
+        match = INPUT_REGEX.match(line)
         if not match:
             print("Invalid line '%s'" % line)
             print("Arguments required: IP Mask ASN")
