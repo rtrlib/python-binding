@@ -42,33 +42,8 @@ Download and Installation
 - ``python setup.py build``
 - ``python setup.py install``
 
-Example
--------
-::
-
-    from rtrlib import RTRManager, PfxvState
-
-    mgr = RTRManager('rpki-validator.realmv6.org', 8282)
-    mgr.start()
-    result = mgr.validate(12345, '10.10.0.0', 24)
-
-    if result == PfxvState.valid:
-        print('Prefix Valid')
-    elif result == PfxvState.invalid:
-        print('Prefix Invalid')
-    elif result == PfxvState.not_found:
-        print('Prefix not found')
-    else:
-        print('Invalid response')
-
-    # iterate over all ipv4 record and print them
-    for recordv4 in mgr.ipv4_records():
-        print(recordv4)
-
-    mgr.stop()
-
-
-Further examples can be found in the tools_ dir of the repository.
+For usage examples see here :ref:`here <Usage Examples>`
+or in the tools_ dir of the repository.
 
 
 .. _rtrlib-python: https://github.com/rtrlib/python-binding
@@ -82,6 +57,7 @@ Contents:
 
    api
    callbacks
+   usage
 
 
 
