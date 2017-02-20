@@ -61,6 +61,10 @@ Example
     else:
         print('Invalid response')
 
+    # iterate over all ipv4 record and print them
+    for recordv4 in mgr.ipv4_records():
+        print(recordv4)
+
     mgr.stop()
 
 
