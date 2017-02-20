@@ -114,8 +114,8 @@ class CallbackGenerator(object):
         self.thread = StoppableThread(
                                       target=function,
                                       args=new_args,
-                                      daemon=True,
                                       )
+        self.thread.daemon = True
 
         self.thread.start()
 
@@ -140,3 +140,6 @@ class CallbackGenerator(object):
                 else:
                     LOG.debug('Queue empty stopping iteration')
                     raise StopIteration()
+
+    def next(self,):
+        return self.__next__()
