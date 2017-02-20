@@ -35,6 +35,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
+    'sphinx.ext.intersphinx',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -302,6 +303,8 @@ latex_documents = [
 # If false, no module index is generated.
 #
 # latex_domain_indices = True
+
+intersphinx_mapping = {'python': ('https://docs.python.org/3.6', None)}
 
 
 # -- Options for manual page output ---------------------------------------
