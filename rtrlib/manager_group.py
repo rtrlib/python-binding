@@ -1,4 +1,10 @@
 # -*- coding:utf8 -*-
+"""
+rtrlib.manager_group
+--------------------
+
+"""
+
 
 from __future__ import absolute_import, unicode_literals
 from enum import Enum

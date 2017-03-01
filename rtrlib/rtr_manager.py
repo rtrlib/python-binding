@@ -33,13 +33,13 @@ LOG = logging.getLogger(__name__)
 
 class RTRManager(object):
     r"""
-    Wrapper arround rtr_manager.
+    Wrapper around rtr_manager.
 
     :param str host: Hostname or IP of rpki cache server
     :type host: str
 
     :param port: Port number
-    :type port: Union[int, float]
+    :type port: int
 
     :param int refresh_interval: Interval in seconds between serial queries \
         that are sent to the server. Must be >= 1 and <= 86400s (one day).
@@ -179,7 +179,7 @@ class RTRManager(object):
         """
         Check if RTRManager is fully synchronized.
 
-        :rtype: :class:`bool`
+        :rtype: bool
         """
         return lib.rtr_mgr_conf_in_sync(self.rtr_manager_config) == 1
 
@@ -281,6 +281,8 @@ class RTRManager(object):
         This iterator utilises threads to execute retrieve the records. \
         If that is a problem for you take a look at \
         :py:meth:`for_each_ipv4_record`.
+
+        :rtype: Iterator
         """
         def callback(record, data):
             LOG.debug('Putting "%s" in queue', record)
@@ -316,6 +318,8 @@ class RTRManager(object):
         This iterator utilises threads to execute retrieve the records. \
         If that is a problem for you take a look at \
         :py:meth:`for_each_ipv6_record`.
+
+        :rtype: Iterator
         """
         def callback(record, data):
             LOG.debug('Putting "%s" in queue', record)
