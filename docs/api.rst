@@ -10,6 +10,10 @@ API Documentation
    :members:
 .. autoclass:: PfxvState
    :members:
+.. autoclass:: ValidationResult
+   :members:
+.. autoclass:: Reason
+   :members:
 
 .. automodule:: rtrlib.rtr_socket
 .. autoclass:: RTRSocket

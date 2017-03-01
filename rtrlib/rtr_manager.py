@@ -217,6 +217,8 @@ class RTRManager(object):
 
         :param mask_len: length of the subnet mask
         :type mask_len: int
+
+        :rtype: ValidationResult
         """
         LOG.debug("Validating %s/%s from AS %s", prefix, mask_len, asn)
 
@@ -228,17 +230,29 @@ class RTRManager(object):
 
         result = ffi.new('enum pfxv_state *')
 
-        ret = lib.rtr_mgr_validate(self.rtr_manager_config,
-                                   asn,
-                                   ip_str_to_addr(prefix),
-                                   mask_len,
-                                   result
-                                   )
+        reason = ffi.new('struct pfx_record **')
+        reason[0] = ffi.NULL
+        reason_length = ffi.new('unsigned int *')
+        reason_length[0] = 0
+
+        ret = lib.pfx_table_validate_r(self.rtr_socket[0].pfx_table,
+                                       reason,
+                                       reason_length,
+                                       asn,
+                                       ip_str_to_addr(prefix),
+                                       mask_len,
+                                       result
+                                       )
 
         if ret == lib.PFX_ERROR:
             raise PFXException("An error occurred during validation")
 
-        return PfxvState(result[0])
+        return ValidationResult(prefix,
+                                mask_len,
+                                asn,
+                                result[0],
+                                reason,
+                                reason_length[0])
 
     def for_each_ipv4_record(self, callback, data):
         r"""
@@ -325,3 +339,161 @@ class PfxvState(Enum):
     One or more records that match the input prefix exists in the pfx_table, \
     but the prefix max_len or ASN doesn't match.
     """
+
+
+class Reason(object):
+    """A Reason upon which a validation decision was made.
+
+    :param prefix_length: Length of the validated prefix
+    :type prefix_length: int
+
+    :param asn: As number of the validated prefix
+    :type asn: As number of the validated prefix
+
+    :param record: PFXRecord
+    :type record: PFXRecord
+    """
+
+    def __init__(self, prefix_length, asn, record):
+        if (not ffi.typeof(record) is ffi.typeof("struct pfx_record *") and
+                not ffi.typeof(record) is ffi.typeof("struct pfx_record")):
+            raise TypeError("record must be struct pfx_record *")
+
+        self.prefix_length = prefix_length
+        self.asn = asn
+        self.record = records.PFXRecord(record)
+
+    def __str__(self,):
+        return '{}: as_valid = {}, length_valid = {}'.format(self.record, self.as_valid, self.length_valid)
+
+    @property
+    def as_valid(self):
+        """True if as is valid."""
+        return self.record.asn == self.asn
+
+    @property
+    def as_invalid(self):
+        """True is as is invalid."""
+        return not self.as_valid
+
+    @property
+    def length_valid(self):
+        """True if prefix length is valid."""
+        return self.record.min_len <= self.prefix_length <= self.record.max_len
+
+    @property
+    def length_invalid(self):
+        """True if prefix length is invalid."""
+        return not self.length_valid
+
+
+class ValidationResult(object):
+    """
+    Wrapper class for validation result.
+
+    :param prefix: The prefix that was validated
+    :type prefix: str
+
+    :param prefix_length: The length of the prefix
+    :type prefix_length: int
+
+    :param asn: The ASN the prefix is supposed to be in.
+    :param asn: int
+
+    :param state: Validation state
+    :type state: enum pfxv_state *
+
+    :param reason_records: Array of PFXRecords the decision is based on
+    :type reason_records: struct pfx_record **
+
+    :param reason_len: Length of reason_records
+    :type reason_len: int
+    """
+
+    def __init__(self,
+                 prefix,
+                 prefix_length,
+                 asn,
+                 state,
+                 reason_records=None,
+                 reason_len=0
+                 ):
+        self._state = PfxvState(state)
+        self._prefix = prefix
+        self._prefix_length = prefix_length
+        self._asn = asn
+
+        if (reason_records and reason_len and
+                ffi.typeof(reason_records) is ffi.typeof('struct pfx_record **')):
+
+            self._reason = []
+            self._reason_records = reason_records
+            for record in ffi.unpack(reason_records[0], reason_len):
+                self._reason.append(Reason(prefix_length, asn, record))
+
+        elif (not ffi.typeof(reason_records) is ffi.typeof('struct pfx_record **')):
+            raise TypeError("reason_records must be struct pfx_record **")
+        else:
+            self._reason = None
+            self._reason_records = None
+
+    def __del__(self,):
+        if self._reason_records:
+            lib.free(self._reason_records[0])
+
+    def __str__(self,):
+        return '{}/{} AS{}: {}'.format(self._prefix,
+                                       self._prefix_length,
+                                       self._asn,
+                                       self.state)
+
+    @property
+    def state(self):
+        """Validation state."""
+        return self._state
+
+    @property
+    def is_invalid(self):
+        """Return true if prefix is invalid."""
+        return self.state == PfxvState.invalid
+
+    @property
+    def is_valid(self):
+        """True if prefix is valid."""
+        return self.state == PfxvState.valid
+
+    @property
+    def not_found(self):
+        """True if prefix could not be found."""
+        return self.state == PfxvState.not_found
+
+    @property
+    def as_invalid(self):
+        r"""True if at least one matching record has a different as number \
+        and state is invalid.
+        """
+        return (self.is_invalid and
+                any(reason.as_invalid for reason in self._reason))
+
+    @property
+    def as_valid(self):
+        """True if any one matching record has been found."""
+        return any(reason.as_valid for reason in self._reason)
+
+    @property
+    def length_invalid(self):
+        r"""True if at least one matching record has a miss matching prefix \
+         length and state is invalid.
+         """
+        return (self.is_invalid and
+                any(reason.length_invalid for reason in self._reason))
+
+    @property
+    def length_valid(self):
+        """True if any one matching record was found"""
+        return any(reason.length_valid for reason in self._reason)
+
+    @property
+    def reason(self):
+        """List of :class:`.Reason` ."""
+        return self._reason

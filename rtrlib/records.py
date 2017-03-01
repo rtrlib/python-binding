@@ -20,6 +20,10 @@ class PFXRecord(object):
     """
 
     def __init__(self, record):
+        if (not ffi.typeof(record) is ffi.typeof("struct pfx_record *") and
+                not ffi.typeof(record) is ffi.typeof("struct pfx_record")):
+            raise TypeError("Type of record must be struct pfx_record *")
+
         self._record = record
 
     @property

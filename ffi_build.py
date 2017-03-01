@@ -18,6 +18,10 @@ ffibuilder.cdef("""
         extern "Python" void pfx_table_callback(const struct pfx_record *pfx_record, void *data);
                 """)
 
+ffibuilder.cdef("""
+                void free(void *ptr);
+                """)
+
 ffibuilder.set_source("_rtrlib",
                       """
                       #include <rtrlib/rtrlib.h>
