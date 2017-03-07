@@ -13,7 +13,7 @@ setup(
     url='https://github.com/mroethke/rtrlib-python',
     packages=['rtrlib'],
     include_package_data=True,
-    license='Apache 2.0',
+    license='MIT',
     zip_safe=False,
     classifiers=(
         'Development Status :: 3 - Alpha'
@@ -26,7 +26,7 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
     ),
-    setup_requires=["cffi>=1.4.0"],
+    setup_requires=["cffi>=1.6.0"],
     cffi_modules=["ffi_build.py:ffibuilder"],
-    install_requires=["cffi>=1.4.0", "six", 'enum34'],
+    install_requires=["cffi>=1.6.0", "six", 'enum34'],
 )
