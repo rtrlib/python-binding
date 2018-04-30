@@ -571,7 +571,7 @@ enum rtr_socket_state {
 /**
  * @brief A function pointer that is called if the state of the rtr socket has changed.
  */
-typedef void (*rtr_connection_state_fp)(const struct rtr_socket *rtr_socket, const enum rtr_socket_state state, void *connection_state_fp_param);
+typedef void (*rtr_connection_state_fp)(const struct rtr_socket *rtr_socket, const enum rtr_socket_state state, void *connection_state_fp_param_config, void *connection_state_fp_param_group);
 
 /**
  * @brief A RTR socket.
@@ -603,7 +603,8 @@ struct rtr_socket {
     uint32_t serial_number;
     struct pfx_table *pfx_table;
     rtr_connection_state_fp connection_state_fp;
-    void *connection_state_fp_param;
+    void *connection_state_fp_param_config;
+    void *connection_state_fp_param_group;
     unsigned int version;
     bool has_received_pdus;
     struct spki_table *spki_table;
@@ -633,7 +634,7 @@ struct rtr_socket {
 int rtr_init(struct rtr_socket *rtr_socket, struct tr_socket *tr_socket, struct pfx_table *pfx_table,
              struct spki_table *spki_table, const unsigned int refresh_interval,
              const unsigned int expire_interval, const unsigned int retry_interval,
-             rtr_connection_state_fp fp, void *fp_data);
+             rtr_connection_state_fp fp, void *fp_data_config, void *fp_data_group);
 
 /**
  * @brief Starts the RTR protocol state machine in a pthread. Connection to the rtr_server will be established and the
@@ -992,7 +993,6 @@ typedef void (*rtr_mgr_status_fp)(const struct rtr_mgr_group *,
 				  void *);
 
 struct rtr_mgr_config {
-	struct rtr_mgr_group *groups;
 	unsigned int len;
 	rtr_mgr_status_fp status_fp;
 	void *status_fp_data;
@@ -1111,7 +1111,7 @@ int rtr_mgr_validate(struct rtr_mgr_config *config,
 int rtr_mgr_get_spki(struct rtr_mgr_config *config,
 		     const uint32_t asn,
 		     uint8_t *ski,
-		     struct spki_record *result,
+		     struct spki_record **result,
 		     unsigned int *result_count);
 
 /**
