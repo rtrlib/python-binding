@@ -480,22 +480,12 @@ class ValidationResult(object):
                 any(reason.as_invalid for reason in self._reason))
 
     @property
-    def as_valid(self):
-        """True if any one matching record has been found."""
-        return any(reason.as_valid for reason in self._reason)
-
-    @property
     def length_invalid(self):
         r"""True if at least one matching record has a miss matching prefix \
          length and state is invalid.
          """
         return (self.is_invalid and
                 any(reason.length_invalid for reason in self._reason))
-
-    @property
-    def length_valid(self):
-        """True if any one matching record was found"""
-        return any(reason.length_valid for reason in self._reason)
 
     @property
     def reason(self):
