@@ -23,6 +23,8 @@ typedef int... time_t;
  * @{
  */
 
+struct pfx_table;
+
 
 
 /**
@@ -105,103 +107,6 @@ struct tr_socket {
 
 
 /**
- * @brief Establish the connection.
- * @param[in] socket Socket that will be used.
- * @return TR_SUCCESS On success.
- * @return TR_ERROR On error.
- */
-int tr_open(struct tr_socket *socket);
-
-/**
- * @brief Close the socket connection.
- * @param[in] socket Socket that will be closed.
- */
-void tr_close(struct tr_socket *socket);
-
-/**
- * @brief Deallocates all memory that the passed socket uses.
- * Socket have to be closed before.
- * @param[in] socket which will be freed.
- */
-void tr_free(struct tr_socket *socket);
-
-/**
- * @brief Receives <= len Bytes data from the socket.
- * @param[in] socket Socket that will be used.
- * @param[out] buf Received data, must be an allocated memory area of >=pdu_len bytes.
- * @param[in] len Size of pdu in Bytes.
- * @param[in] timeout Max. seconds the function will block till len data was received.
- * @return >0 Number of Bytes read.
- * @return TR_ERROR On error.
- * @return TR_WOULDBLOCK If no data was available at the socket before the timeout expired.
- */
-int tr_recv(const struct tr_socket *socket, void *buf, const size_t len, const time_t timeout);
-
-/**
- * @brief Send <= len Bytes data over the socket.
- * @param[in] socket Socket that will be used.
- * @param[out] pdu Data that will be be sent.
- * @param[in] len Size of pdu in Bytes.
- * @param[in] timeout Max. seconds the function should try to send the data till it returns.
- * @return >0 Number of Bytes sent.
- * @return TR_ERROR On error.
- */
-int tr_send(const struct tr_socket *socket, const void *pdu, const size_t len, const time_t timeout);
-
-/**
- * Repeatly calls tr_send(..) till len Bytes were sent, the timeout expired or an error occured.
- * @param[in] socket Socket that will be used.
- * @param[out] pdu Data that will be be sent.
- * @param[in] len Size of pdu in Bytes.
- * @param[in] timeout Max. seconds the functions should try to send pdu till it returns.
- * @return >0 Number of Bytes sent.
- * @return TR_ERROR On Error.
- * @return TR_WOULDBLOCK If send would block.
- */
-int tr_send_all(const struct tr_socket *socket, const void *pdu, const size_t len, const time_t timeout);
-
-/**
- * Repeatly calls tr_recv(..) till len Bytes were received, the timeout expired or an error occured.
- * @param[in] socket Socket that will be used.
- * @param[out] buf Received data, must be an allocated memory area of >=len bytes.
- * @param[in] len Size of pdu in Bytes.
- * @param[in] timeout Max. seconds the functions should try to receive len data till it returns.
- * @return >0 Number of Bytes received.
- * @return TR_ERROR On error.
- * @return TR_WOULDBLOCK If send would block.
- */
-int tr_recv_all(const struct tr_socket *socket, const void *buf, const size_t len, const time_t timeout);
-
-/**
- * Returns an identifier for the socket endpoint, eg host:port.
- * @param[in] socket
- * return Pointer to a \0 terminated String
- * return NULL on error
- */
-const char *tr_ident(struct tr_socket *socket);
-
-/* @} */
-/*
- * This file is part of RTRlib.
- *
- * This file is subject to the terms and conditions of the MIT license.
- * See the file LICENSE in the top level directory for more details.
- *
- * Website: http://rtrlib.realmv6.org/
- */
-
-/**
- * @defgroup mod_tcp_transport_h TCP transport socket
- * @ingroup mod_transport_h
- * @brief An implementation of the TCP protocol for the RTR transport.
- * See @ref mod_transport_h "transport interface" for a list of supported operations.
- *
- * @{
- */
-
-
-
-/**
  * @brief  A tr_tcp_config struct holds configuration for a TCP connection.
  * @param host Hostname or IP address to connect to.
  * @param port Port to connect to.
@@ -257,148 +162,6 @@ int tr_tcp_init(const struct tr_tcp_config *config, struct tr_socket *socket);
  * Usage example of the RTR connection manager.
  */
 
-/*
- * This file is part of RTRlib.
- *
- * This file is subject to the terms and conditions of the MIT license.
- * See the file LICENSE in the top level directory for more details.
- *
- * Website: http://rtrlib.realmv6.org/
- */
-
-/**
- * @defgroup mod_pfx_h Prefix validation table
- * @brief The pfx_table is an abstract data structure to organize the validated prefix origin data received from an RPKI-RTR cache server.
- *
- * @{
- */
-
-
-/*
- * This file is part of RTRlib.
- *
- * This file is subject to the terms and conditions of the MIT license.
- * See the file LICENSE in the top level directory for more details.
- *
- * Website: http://rtrlib.realmv6.org/
- */
-
-
-/*
- * This file is part of RTRlib.
- *
- * This file is subject to the terms and conditions of the MIT license.
- * See the file LICENSE in the top level directory for more details.
- *
- * Website: http://rtrlib.realmv6.org/
- */
-
-
-
-/**
- * @brief Struct storing an IPv4 address in host byte order.
- * @param addr The IPv4 address.
- */
-struct lrtr_ipv4_addr {
-    uint32_t addr;
-};
-
-/**
- * @brief Extracts number bits from the passed ipv4_addr, starting at bit number from. The bit with the highest
- * significance is bit 0. All bits that aren't in the specified range will be 0.
- * @param[in] val ipv4_addr
- * @param[in] from Position of the first bit that is extracted.
- * @param[in] number How many bits will be extracted.
- * @returns An ipv4_addr, where all bits that aren't in the specified range are set to 0.
-*/
-struct lrtr_ipv4_addr lrtr_ipv4_get_bits(const struct lrtr_ipv4_addr *val, const uint8_t from, const uint8_t number);
-
-/**
- * Converts the passed IPv4 address in string representation to an ipv4_addr struct.
- * @param[in] str Pointer to a string buffer.
- * @param[out] ip ipv4_addr
- * @result 0 on success
- * @result -1 on error
-*/
-int lrtr_ipv4_str_to_addr(const char *str, struct lrtr_ipv4_addr *ip);
-
-/**
- * Converts the passed ipv4_addr to string representation.
- * @param[in] ip ipv4_addr
- * @param[out] str Pointer to a string buffer must be at least INET_ADDRSTRLEN bytes long.
- * @result 0 on success
- * @result -1 on error
-*/
-int lrtr_ipv4_addr_to_str(const struct lrtr_ipv4_addr *ip, char *str, const unsigned int len);
-
-/**
- * Compares two ipv4_addr structs.
- * @param[in] a ipv4_addr
- * @param[in] b ipv4_addr
- * @return true if a == b
- * @return false if a != b
-*/
-bool lrtr_ipv4_addr_equal(const struct lrtr_ipv4_addr *a, const struct lrtr_ipv4_addr *b);
-
-/*
- * This file is part of RTRlib.
- *
- * This file is subject to the terms and conditions of the MIT license.
- * See the file LICENSE in the top level directory for more details.
- *
- * Website: http://rtrlib.realmv6.org/
- */
-
-
-
-
-/**
- * @brief Struct holding an IPv6 address in host byte order.
- * @param addr The IPv6 address.
- */
-struct lrtr_ipv6_addr {
-    uint32_t addr[4];
-};
-
-/**
- * Compares two ipv6_addr structs
- * @param[in] a ipv6_addr
- * @param[in] b ipv6_addr
- * @return true if a == b
- * @return false if a != b
-*/
-bool lrtr_ipv6_addr_equal(const struct lrtr_ipv6_addr *a, const struct lrtr_ipv6_addr *b);
-
-/**
- * @brief Extracts quantity bits from a ip address. The bit with the highest
- * significance is bit 0. All bits that aren't in the specified range will be 0.
- * @param[in] val ipv6_addr
- * @param[in] first_bit Position of the first bit that is extracted, inclusive
- * @param[in] quantity How many bits will be extracted.
- * @returns An ipv6_addr, where all bits that aren't in the specified range are set to 0.
-*/
-struct lrtr_ipv6_addr lrtr_ipv6_get_bits(const struct lrtr_ipv6_addr *val, const uint8_t first_bit, const uint8_t quantity);
-
-/**
- * Converts the passed ipv6_addr to string representation
- * @param[in] ip ipv6_addr
- * @param[out] str Pointer to a string buffer must be at least INET6_ADDRSTRLEN bytes long.
- * @result 0 on success
- * @result -1 on error
-*/
-int lrtr_ipv6_addr_to_str(const struct lrtr_ipv6_addr *ip_addr, char *b, const unsigned int len);
-
-/**
- * Converts the passed IPv6 address in string representation to an ipv6_addr struct.
- * @param[in] str Pointer to a string buffer
- * @param[out] ip ipv6_addr
- * @result 0 on success
- * @result -1 on error
-*/
-int lrtr_ipv6_str_to_addr(const char *a, struct lrtr_ipv6_addr *ip);
-
-
-
 /**
  * @brief Version of the IP protocol.
  */
@@ -408,6 +171,21 @@ enum lrtr_ip_version {
 
     /** LRTR_IPV6 */
     LRTR_IPV6
+};
+
+/**
+ * @brief Struct storing an IPv4 address in host byte order.
+ * @param addr The IPv4 address.
+ */
+struct lrtr_ipv4_addr {
+	uint32_t addr;
+};
+
+/**
+ * @brief Struct holding an IPv6 address in host byte order.
+ */
+struct lrtr_ipv6_addr {
+	uint32_t addr[4];	/**< The IPv6 address. */
 };
 
 /**
@@ -422,24 +200,6 @@ struct lrtr_ip_addr {
         struct lrtr_ipv6_addr addr6;
     } u;
 };
-
-/**
- * @brief Detects if the lrtr_ip_addr only contains 0 bits.
- * @param[in] lrtr_ip_addr
- * @returns true If the saved lrtr_ip_addr is 0.
- * @returns false If the saved lrtr_ip_addr isn't 0.
- */
-bool lrtr_ip_addr_is_zero(const struct lrtr_ip_addr);
-
-/**
- * @brief Extracts number bits from the passed lrtr_ip_addr, starting at bit number from. The bit with the highest
- * significance is bit 0. All bits that aren't in the specified range will be 0.
- * @param[in] val lrtr_ip_addr
- * @param[in] from Position of the first bit that is extracted.
- * @param[in] number How many bits will be extracted.
- * @returns An lrtr_ipv_addr, where all bits that aren't in the specified range are set to 0.
-*/
-struct lrtr_ip_addr lrtr_ip_addr_get_bits(const struct lrtr_ip_addr *val, const uint8_t from, const uint8_t number);
 
 /**
  * @defgroup util_h Utility functions
@@ -509,21 +269,6 @@ bool lrtr_ip_str_cmp(const struct lrtr_ip_addr *addr1, const char *addr2);
  *
  * Website: http://rtrlib.realmv6.org/
  */
-
-/**
- * @defgroup mod_pfx_h Prefix validation table
- * @brief The pfx_table is an abstract data structure to organize the validated prefix origin data received from an RPKI-RTR cache server.
- *
- * @{
- */
-
-/* @} */
-
-static const uint8_t RTR_PROTOCOL_VERSION_0 = 0;
-static const uint8_t RTR_PROTOCOL_VERSION_1 = 1;
-
-static const uint8_t RTR_PROTOCOL_MIN_SUPPORTED_VERSION = 0;
-static const uint8_t RTR_PROTOCOL_MAX_SUPPORTED_VERSION = 1;
 
 enum rtr_rtvals {
     RTR_SUCCESS = 0,
@@ -612,57 +357,6 @@ struct rtr_socket {
 };
 
 /**
- * @brief Initializes a rtr_socket.
- * @param[out] rtr_socket Pointer to the allocated rtr_socket that will be initialized.
- * @param[in] tr_socket Pointer to a tr_socket that will be used for the transport connection. If NULL the tr_socket element of
- * the rtr_socket won't be changed.
- * @param[in] pfx_table pfx_table that stores the validation records obtained from the connected rtr server.
- * @param[in] spki_table spki_table that stores the router keys obtained from the connected rtr server.
- * @param[in] refresh_interval Interval in seconds between serial queries that are sent to the server. Must be >= 1 and <= 86400 (one day),
- * recommended default is 3600s (one hour).
- * @param[in] expire_interval Stored validation records will be deleted if cache was unable to refresh data for this period.
- * The value should be twice the refresh_interval. The value must be >= 600 (ten minutes) and <= 172800 (two days).
- * The recommanded default is 7200s (two hours).
- * @param[in] retry_interval This parameter tells the router how long to wait (in seconds) before retrying
- * a failed Serial Query or Reset Query. The value must be >= 1s and <= 7200s (two hours).
- * The recommanded default is 600 seconds (ten minutes).
- * @param[in] fp A callback function that is executed when the state of the socket changes.
- * @param[in] fp_data Parameter that is passed to the connection_state_fp callback.
- * @return RTR_INVALID_PARAM If the refresh_interval or the expire_interval is not valid.
- * @return RTR_SUCCESS On success.
- */
-int rtr_init(struct rtr_socket *rtr_socket, struct tr_socket *tr_socket, struct pfx_table *pfx_table,
-             struct spki_table *spki_table, const unsigned int refresh_interval,
-             const unsigned int expire_interval, const unsigned int retry_interval,
-             enum interval_mode iv_mode, rtr_connection_state_fp fp, void *fp_data_config, 
-             void *fp_data_group);
-
-/**
- * @brief Starts the RTR protocol state machine in a pthread. Connection to the rtr_server will be established and the
- * pfx_records will be synced.
- * @param[in] rtr_socket rtr_socket that will be used.
- * @return RTR_ERROR On error.
- * @return RTR_SUCCESS On success.
- */
-int rtr_start(struct rtr_socket *rtr_socket);
-
-/**
- * @brief Stops the RTR connection and terminate the transport connection.
- * @param[in] rtr_socket rtr_socket that will be used.
- */
-void rtr_stop(struct rtr_socket *rtr_socket);
-
-/**
- * @brief Converts a rtr_socket_state to a String.
- * @param[in] state state to convert to a string
- * @return NULL If state isn't a valid rtr_socket_state
- * @return !=NULL The rtr_socket_state as String.
- */
-const char *rtr_state_to_str(enum rtr_socket_state state);
-
-/* @} */
-
-/**
  * @brief Possible return values for pfx_ functions.
  */
 enum pfx_rtvals {
@@ -678,8 +372,6 @@ enum pfx_rtvals {
     /** pfx_record wasn't found in the pfx_table. */
     PFX_RECORD_NOT_FOUND = -3
 };
-
-struct pfx_table;
 
 /**
  * @brief Validation states returned from  pfx_validate_origin.
@@ -729,60 +421,6 @@ typedef void (*pfx_update_fp)(struct pfx_table *pfx_table, const struct pfx_reco
 typedef void (*pfx_for_each_fp)(const struct pfx_record *pfx_record, void *data);
 
 /**
- * @brief Initializes the pfx_table struct.
- * @param[in] pfx_table pfx_table that will be initialized.
- * @param[in] update_fp Afunction pointers that will be called if a record was added or removed.
- */
-void pfx_table_init(struct pfx_table *pfx_table, pfx_update_fp update_fp);
-
-/**
- * @brief Frees all memory associcated with the pfx_table.
- * @param[in] pfx_table pfx_table that will be freed.
- */
-void pfx_table_free(struct pfx_table *pfx_table);
-
-/**
- * @brief Adds a pfx_record to a pfx_table.
- * @param[in] pfx_table pfx_table to use.
- * @param[in] pfx_record pfx_record that will be added.
- * @return PFX_SUCCESS On success.
- * @return PFX_ERROR On error.
- * @return PFX_DUPLICATE_RECORD If the pfx_record already exists.
- */
-int pfx_table_add(struct pfx_table *pfx_table, const struct pfx_record *pfx_record);
-
-/**
- * @brief Removes a pfx_record from a pfx_table.
- * @param[in] pfx_table pfx_table to use.
- * @param[in] pfx_record Record that will be removed.
- * @return PFX_SUCCESS On success.
- * @return PFX_ERROR On error.
- * @return PFX_RECORD_NOT_FOUND If pfx_records could'nt be found.
- */
-int pfx_table_remove(struct pfx_table *pfx_table, const struct pfx_record *pfx_record);
-
-/**
- * @brief Removes all entries in the pfx_table that match the passed socket_id value from a pfx_table.
- * @param[in] pfx_table pfx_table to use.
- * @param[in] socket origin socket of the record
- * @return PFX_SUCCESS On success.
- * @return PFX_ERROR On error.
- */
-int pfx_table_src_remove(struct pfx_table *pfx_table, const struct rtr_socket *socket);
-
-/**
- * @brief Validates the origin of a BGP-Route.
- * @param[in] pfx_table pfx_table to use.
- * @param[in] asn Autonomous system number of the Origin-AS of the route.
- * @param[in] prefix Announcend network Prefix.
- * @param[in] mask_len Length of the network mask of the announced prefix.
- * @param[out] result Result of the validation.
- * @return PFX_SUCCESS On success.
- * @return PFX_ERROR On error.
- */
-int pfx_table_validate(struct pfx_table *pfx_table, const uint32_t asn, const struct lrtr_ip_addr *prefix, const uint8_t mask_len, enum pfxv_state *result);
-
-/**
  * @brief Validates the origin of a BGP-Route and returns a list of pfx_record that decided the result.
  * @param[in] pfx_table pfx_table to use.
  * @param[out] reason Pointer to a memory area that will be used as array of pfx_records. The memory area will be overwritten. Reason must point to NULL or an allocated memory area.
@@ -826,35 +464,8 @@ void pfx_table_for_each_ipv6_record(struct pfx_table *pfx_table, pfx_for_each_fp
  * Website: http://rtrlib.realmv6.org/
  */
 
-/**
- * @defgroup mod_spki_h Subject Public Key Info table
- * @brief The spki_table is an abstract data structure to organize the received Router Key PDUs from a RPKI-RTR cache server.
- *
- * @{
- */
-
-
-
-
 #define SKI_SIZE 20
 #define SPKI_SIZE 91
-
-/**
- * @brief Possible return values for some spki_table_ functions.
- */
-enum spki_rtvals {
-	/** Operation was successfull. */
-	SPKI_SUCCESS = 0,
-
-	/** Error occured. */
-	SPKI_ERROR = -1,
-
-	/** The supplied spki_record already exists in the spki_table. */
-	SPKI_DUPLICATE_RECORD = -2,
-
-	/** spki_record wasn't found in the spki_table. */
-	SPKI_RECORD_NOT_FOUND = -3
-};
 
 struct spki_table;
 
@@ -882,80 +493,6 @@ struct spki_record {
 typedef void (*spki_update_fp)(struct spki_table *spki_table,
 			       const struct spki_record record,
 			       const bool added);
-
-/**
- * @brief Initializes the spki_table struct.
- * @param[in] spki_table spki_table that will be initialized.
- * @param[in] update_fp Pointer to update function
- */
-void spki_table_init(struct spki_table *spki_table, spki_update_fp update_fp);
-
-/**
- * @brief Frees the memory associcated with the spki_table.
- * @param[in] spki_table spki_table that will be initialized.
- */
-void spki_table_free(struct spki_table *spki_table);
-
-/**
- * @brief Adds a spki_record to a spki_table.
- * @param[in] spki_table spki_table to use.
- * @param[in] spki_record spki_record that will be added.
- * @return SPKI_SUCCESS On success.
- * @return SPKI_ERROR On error.
- * @return SPKI_DUPLICATE_RECORD If an identical spki_record already exists
- */
-int spki_table_add_entry(struct spki_table *spki_table,
-			 struct spki_record *spki_record);
-
-/**
- * @brief Returns all spki_record whose ASN and SKI matches.
- * @param[in] spki_table spki_table to use
- * @param[in] asn the AS number
- * @param[in] ski the 20 byte field which contains the SKI to search for
- * @param[out] result the result array. NULL if no records could be found
- * @param[out] result_size elment count of the result array
- * @return SPKI_SUCCESS On success
- * @return SPKI_ERROR On error
- */
-int spki_table_get_all(struct spki_table *spki_table, uint32_t asn,
-		       uint8_t *ski, struct spki_record **result,
-		       unsigned int *result_size);
-
-/**
- * @brief Returns all spki_record whose SKI number matches the given one.
- * @param[in] spki_table spki_table to use
- * @param[in] ski the 20 byte field which contains the SKI to search for
- * @param[out] result the result array. NULL if no records could be found
- * @param[out] result_size elment count of the result array
- * @return SPKI_SUCCESS On success
- * @return SPKI_ERROR On error
- */
-int spki_table_search_by_ski(struct spki_table *spki_table, uint8_t *ski,
-			     struct spki_record **result,
-			     unsigned int *result_size);
-
-/**
- * @brief Removes spki_record from spki_table
- * @param spki_table spki_table to use
- * @param spki_record spki_record to remove;
- * @return SPKI_SUCCESS On success
- * @return SPKI_ERROR On error
- * @return SPKI_RECORD_NOT_FOUND On record not found
- */
-int spki_table_remove_entry(struct spki_table *spki_table,
-			    struct spki_record *spki_record);
-
-/**
- * @brief Removes all entries in the spki_table that match the passed socket_id.
- * @param[in] spki_table spki_table to use.
- * @param[in] socket origin socket of the record
- * @return SPKI_SUCCESS On success.
- * @return SPKI_ERROR On error.
- */
-int spki_table_src_remove(struct spki_table *spki_table,
-			  const struct rtr_socket *socket);
-
-/* @} */
 
 /**
  * @brief Status of a rtr_mgr_group.
@@ -1146,36 +683,6 @@ void rtr_mgr_for_each_ipv4_record(struct rtr_mgr_config *config,
 void rtr_mgr_for_each_ipv6_record(struct rtr_mgr_config *config,
 				  pfx_for_each_fp fp,
 				  void *data);
-
-/**
- * @brief pfx_table.
- * @param ipv4
- * @param ipv6
- * @param update_fp
- * @param lock
- */
-struct pfx_table {
-    ...;
-};
-
-/**
- * @brief Returns the current time of the CLOCK_MONOTONIC clock.
- * @param[in] seconds Time in seconds since some unspecified starting point.
- * @return 0 on successs
- * @return -1 on error
- */
-int lrtr_get_monotonic_time(time_t *seconds);
-
-/**
- * @brief Extracts number bits from the passed uint32_t, starting at bit number from. The bit with the highest
- * significance is bit 0. All bits that aren't in the specified range will be 0.
- * @param[in] val uint32_t
- * @param[in] from Position of the first bit that is extracted.
- * @param[in] number How many bits will be extracted.
- * @returns a uint32_t, where all bits that aren't in the specified range are set to 0.
-*/
-uint32_t lrtr_get_bits(const uint32_t val, const uint8_t from, const uint8_t number);
-
 
 /*
  * custom function to determine availability of ssh support from python
