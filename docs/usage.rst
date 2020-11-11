@@ -129,7 +129,7 @@ Let's say you implemented RFC6810 yourself but still want to use rtrlibs pfxtabl
         add_record(asn, ip, min_len, max_len)
 
 
-    # iterate over pfx_table to demonstrate it's content
+    # iterate over pfx_table to demonstrate its content
 
     # since the callback from the rtrlib module is used record
     # is automatically wrapped in a python class
