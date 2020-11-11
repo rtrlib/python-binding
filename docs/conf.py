@@ -56,7 +56,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'rtrlib-python'
-copyright = '2016, Marcel Röthke'
+copyright = '2016-2020, Marcel Röthke'
 author = 'Marcel Röthke'
 
 # The version info for the project you're documenting, acts as replacement for
