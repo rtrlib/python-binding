@@ -6,57 +6,12 @@ from __future__ import absolute_import, unicode_literals
 
 import logging
 
-from _rtrlib import ffi, lib
+from _rtrlib import ffi
 from .manager_group import ManagerGroup, ManagerGroupStatus
 from .rtr_socket import RTRSocket
 from .records import PFXRecord, SPKIRecord
 
 LOG = logging.getLogger(__name__)
-
-PFX_UPDATE_CALLBACK = ffi.NULL
-SPKI_UPDATE_CALLBACK = ffi.NULL
-
-
-def register_pfx_update_callback(func):
-    """
-    Register RTR manager pfx_update_callback
-
-    :param function func: Callback function
-    """
-    global PFX_UPDATE_CALLBACK
-    register_callback(
-        pfx_update_callback_wrapper(func),
-        "pfx_update_callback"
-        )
-
-    PFX_UPDATE_CALLBACK = lib.pfx_update_callback
-
-
-def register_spki_update_callback(func):
-    """
-    Register RTR manager spki update callback
-
-    .. warning:: This callback is untested, because at the time of writing
-        no caching server with spki records was available.
-        It should work but might cause you computer to explode.
-
-    :param function func: Callback function
-    """
-    global SPKI_UPDATE_CALLBACK
-    register_callback(
-        spki_update_callback_wrapper(func),
-        "spki_update_callback"
-        )
-
-    SPKI_UPDATE_CALLBACK = lib.spki_update_callback
-
-
-def register_callback(callback, name):
-    """
-    Registers a cffi callback
-    """
-    LOG.debug('Registering callback %s', name)
-    ffi.def_extern(name=name)(callback)
 
 
 @ffi.def_extern(name="rtr_mgr_status_callback")
@@ -87,35 +42,25 @@ def pfx_table_callback(pfx_record, object_handle):
     callback(PFXRecord(pfx_record), data)
 
 
-def pfx_update_callback_wrapper(func):
-    """
-    Wraps the given python function and wraps it to hide cffi specifics.
-    This wrapper is only for the pfx update callback of the rtrlib manager.
-    """
-    def inner(pfx_table, pfx_record, added):
-        """
-        Hides c structures
-        """
-        LOG.debug("Calling pfx update callback")
-        func(
-            PFXRecord(pfx_record),
+@ffi.def_extern(name="pfx_update_callback")
+def pfx_update_callback(pfx_table, record, added):
+    wrapped_socket = ffi.cast("struct rtr_socket_wrapper *", record.socket)
+    mgr = ffi.from_handle(wrapped_socket.data)
+
+    mgr._pfx_update_callback(
+            PFXRecord(record),
             added,
-            )
-    return inner
+            mgr._pfx_update_callback_data,
+        )
 
 
-def spki_update_callback_wrapper(func):
-    """
-    Wraps the given python function and wraps it to hide cffi specifics.
-    This wrapper is only for the spki update callback of the rtrlib manager.
-    """
-    def inner(record, added):
-        """
-        Hides c structures
-        """
-        LOG.debug("Calling spki update callback")
-        func(
+@ffi.def_extern(name="spki_update_callback")
+def spki_update_callback(spki_table, record, added):
+    wrapped_socket = ffi.cast("struct rtr_socket_wrapper *", record.socket)
+    mgr = ffi.from_handle(wrapped_socket.data)
+
+    mgr._spki_update_callback(
             SPKIRecord(record),
             added,
+            mgr._spki_update_callback_data,
             )
-    return inner

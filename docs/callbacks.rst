@@ -39,8 +39,6 @@ This callback can be used to iterate over the entire pfx table.
     :param data: Arbitrary data object provided by the user
     :type data: object or None
 
-.. warning:: You should **not** register more than one function per callback for the following callbacks, it will **not** work and result in undefined behaviour
-
 
 PFX update callback
 -------------------
@@ -53,10 +51,10 @@ This callback is called for any change to the Prefix validation table, it takes 
     :type pfx_record: :class:`rtrlib.records.PFXRecord`
     :param added: Indicates whether the record was added or removed
     :type added: :class:`bool`
+    :param data: Data Object, if defined at manager initialization
 
-This callback can be registered using the :func:`rtrlib.register_pfx_update_callback` function
-
-.. autofunction:: rtrlib.register_pfx_update_callback
+This callback is registered at manager initialization using the pfx_update_callback parameter.
+The data object may be passed with the pfx_update_callback_data parameter.
 
 
 SPKI update callback
@@ -64,13 +62,15 @@ SPKI update callback
 
 This callback is called for any change to the Subject Public Key Info table, it takes two arguments.
 
+.. warning:: This callback is untested due to the lack of spki support in rtr cache server implementations.
+
 .. function:: spki_update_callback(spki_record, added):
 
     :param spki_record: The affected spki record
-    :type spki_record: :class:`rtrlib.records.PFXRecord`
+    :type spki_record: :class:`rtrlib.records.SPKIRecord`
     :param added: Indicates whether the record was added or removed
     :type added: :class:`bool`
+    :param data: Data Object, if defined at manager initialization
 
-This callback can be registered using the :func:`rtrlib.register_spki_update_callback` function
-
-.. autofunction:: rtrlib.register_spki_update_callback
+This callback is registered at manager initialization using the spki_update_callback parameter.
+The data object may be passed with the spki_update_callback_data parameter.

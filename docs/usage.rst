@@ -67,14 +67,12 @@ Print PFX updates
 
 ::
 
-    from rtrlib import RTRManager, register_pfx_update_callback
+    from rtrlib import RTRManager
 
-    def callback(pfx_record, added):
+    def callback(pfx_record, added, data):
         print('%s %s' % ('+' if added else '-', pfx_record))
 
-    register_pfx_update_callback(callback)
-
-    mgr = RTRManager('rpki-validator.realmv6.org', 8282)
+    mgr = RTRManager('rpki-validator.realmv6.org', 8282, pfx_update_callback=callback)
     mgr.start()
 
     mgr.stop()

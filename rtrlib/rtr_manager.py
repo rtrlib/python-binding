@@ -64,6 +64,18 @@ class RTRManager(object):
         callback.
     :type status_callback_data: object
 
+    :param pfx_update_callback: pfx update callback \
+            called every time a pfx update is received
+    :type pfx_update_callback: function
+
+    :param pfx_update_callback_data: data passed to the pfx update callback
+
+    :param spki_update_callback: spki update callback \
+            called every time a spki update is received
+    :type spki_update_callback: function
+
+    :param spki_update_callback_data: data passed to the spki update callback
+
     :raises RTRInitError:
 
     """
@@ -76,7 +88,11 @@ class RTRManager(object):
                 expire_interval=7200,
                 retry_interval=600,
                 status_callback=None,
-                status_callback_data=None
+                status_callback_data=None,
+                pfx_update_callback=None,
+                pfx_update_callback_data=None,
+                spki_update_callback=None,
+                spki_update_callback_data=None,
             ):
 
         LOG.debug('Initializing RTR manager')
@@ -98,6 +114,22 @@ class RTRManager(object):
             self._status_callback = ffi.NULL
             cffi_callback = ffi.NULL
 
+        self._pfx_update_callback_data = pfx_update_callback_data
+        if pfx_update_callback:
+            self._pfx_update_callback = pfx_update_callback
+            pfx_cffi_callback = lib.pfx_update_callback
+        else:
+            self._pfx_update_callback = ffi.NULL
+            pfx_cffi_callback = ffi.NULL
+
+        self._spki_update_callback_data = spki_update_callback_data
+        if spki_update_callback:
+            self._spki_update_callback = spki_update_callback
+            spki_cffi_callback = lib.spki_update_callback
+        else:
+            self._spki_update_callback = ffi.NULL
+            spki_cffi_callback = ffi.NULL
+
         self.host = ffi.new('char[]', to_bytestr(host))
         self.port = ffi.new('char[]', to_bytestr(port))
 
@@ -105,16 +137,17 @@ class RTRManager(object):
 
         self.tcp_config = ffi.new('struct tr_tcp_config *')
         self.tr_socket = ffi.new('struct tr_socket *')
-        self.rtr_socket = ffi.new('struct rtr_socket []', 1)
+        self.rtr_socket = ffi.new('struct rtr_socket_wrapper *')
         self.rtr_group = ffi.new('struct rtr_mgr_group[]', 1)
 
         self.tcp_config.host = self.host
         self.tcp_config.port = self.port
 
         lib.tr_tcp_init(self.tcp_config, self.tr_socket)
-        self.rtr_socket[0].tr_socket = self.tr_socket
+        self.rtr_socket.rtr_socket.tr_socket = self.tr_socket
+        self.rtr_socket[0].data = self._handle
         self.rtr_group[0].sockets_len = 1
-        self.rtr_socketp = ffi.new('struct rtr_socket **', self.rtr_socket)
+        self.rtr_socketp = ffi.new('struct rtr_socket **', ffi.cast("struct rtr_socket *", self.rtr_socket))
         self.rtr_group[0].sockets = self.rtr_socketp
         self.rtr_group[0].preference = 1
 
@@ -124,8 +157,8 @@ class RTRManager(object):
                                refresh_interval,
                                expire_interval,
                                retry_interval,
-                               callbacks.PFX_UPDATE_CALLBACK,
-                               callbacks.SPKI_UPDATE_CALLBACK,
+                               pfx_cffi_callback,
+                               spki_cffi_callback,
                                cffi_callback,
                                self._handle
                                )

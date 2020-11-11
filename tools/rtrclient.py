@@ -4,7 +4,7 @@
 import argparse
 import signal
 
-from rtrlib import RTRManager, register_pfx_update_callback, register_spki_update_callback
+from rtrlib import RTRManager
 
 def pfx_callback(pfx_record, added):
     if added:
@@ -50,13 +50,17 @@ def main():
     args = parser.parse_args()
 
     if args.p:
-        register_pfx_update_callback(pfx_callback)
+        pfx_fp = pfx_callback
+    else:
+        pfx_fp = None
 
     if args.k:
-        register_spki_update_callback(spki_callback)
+        spki_fp = spki_callback
+    else:
+        spki_fp = None
 
     print("{:40}   {:3}   {:4}".format("Prefix", "Prefix Length", "ASN"))
-    with RTRManager(args.hostname, args.port) as mgr:
+    with RTRManager(args.hostname, args.port, pfx_update_callback=pfx_fp, spki_update_callback=spki_fp) as mgr:
         try:
             signal.pause()
         except KeyboardInterrupt:

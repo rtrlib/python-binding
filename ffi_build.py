@@ -22,6 +22,13 @@ ffibuilder.cdef("""
                 void free(void *ptr);
                 """)
 
+ffibuilder.cdef("""
+          struct rtr_socket_wrapper {
+                  struct rtr_socket rtr_socket;
+                  void *data;
+          };
+          """)
+
 ffibuilder.set_source("_rtrlib",
                       """
                       #include <rtrlib/rtrlib.h>
@@ -47,6 +54,11 @@ ffibuilder.set_source("_rtrlib",
                       #ifdef RTRLIB_HAVE_LIBSSH
                       int have_ssh(void) {return 1;}
                       #endif
+
+                      struct rtr_socket_wrapper {
+                              struct rtr_socket rtr_socket;
+                              void *data;
+                      };
                       """,
                       libraries=['rtr'])
 
