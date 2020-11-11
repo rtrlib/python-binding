@@ -385,7 +385,7 @@ class Reason(object):
     :type prefix_length: int
 
     :param asn: As number of the validated prefix
-    :type asn: As number of the validated prefix
+    :type asn: int
 
     :param record: PFXRecord
     :type record: PFXRecord
