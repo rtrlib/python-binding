@@ -458,6 +458,16 @@ void pfx_table_free(struct pfx_table *pfx_table);
 int pfx_table_add(struct pfx_table *pfx_table, const struct pfx_record *pfx_record);
 
 /**
+ * @brief Removes a pfx_record from a pfx_table.
+ * @param[in] pfx_table pfx_table to use.
+ * @param[in] pfx_record Record that will be removed.
+ * @return PFX_SUCCESS On success.
+ * @return PFX_ERROR On error.
+ * @return PFX_RECORD_NOT_FOUND If pfx_records couldn't be found.
+ */
+int pfx_table_remove(struct pfx_table *pfx_table, const struct pfx_record *pfx_record);
+
+/**
  * @brief Validates the origin of a BGP-Route.
  * @param[in] pfx_table pfx_table to use.
  * @param[in] asn Autonomous system number of the Origin-AS of the route.
