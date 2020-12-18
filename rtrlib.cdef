@@ -421,6 +421,56 @@ typedef void (*pfx_update_fp)(struct pfx_table *pfx_table, const struct pfx_reco
 typedef void (*pfx_for_each_fp)(const struct pfx_record *pfx_record, void *data);
 
 /**
+ * @brief pfx_table.
+ * @param ipv4
+ * @param ipv6
+ * @param update_fp
+ * @param lock
+ */
+struct pfx_table {
+	struct trie_node *ipv4;
+	struct trie_node *ipv6;
+	pfx_update_fp update_fp;
+	...;
+};
+
+/**
+ * @brief Initializes the pfx_table struct.
+ * @param[in] pfx_table pfx_table that will be initialized.
+ * @param[in] update_fp A function pointer that will be called if a record was added or removed.
+ */
+void pfx_table_init(struct pfx_table *pfx_table, pfx_update_fp update_fp);
+
+/**
+ * @brief Frees all memory associated with the pfx_table.
+ * @param[in] pfx_table pfx_table that will be freed.
+ */
+void pfx_table_free(struct pfx_table *pfx_table);
+
+/**
+ * @brief Adds a pfx_record to a pfx_table.
+ * @param[in] pfx_table pfx_table to use.
+ * @param[in] pfx_record pfx_record that will be added.
+ * @return PFX_SUCCESS On success.
+ * @return PFX_ERROR On error.
+ * @return PFX_DUPLICATE_RECORD If the pfx_record already exists.
+ */
+int pfx_table_add(struct pfx_table *pfx_table, const struct pfx_record *pfx_record);
+
+/**
+ * @brief Validates the origin of a BGP-Route.
+ * @param[in] pfx_table pfx_table to use.
+ * @param[in] asn Autonomous system number of the Origin-AS of the route.
+ * @param[in] prefix Announced network Prefix.
+ * @param[in] mask_len Length of the network mask of the announced prefix.
+ * @param[out] result Result of the validation.
+ * @return PFX_SUCCESS On success.
+ * @return PFX_ERROR On error.
+ */
+int pfx_table_validate(struct pfx_table *pfx_table, const uint32_t asn, const struct lrtr_ip_addr *prefix,
+		       const uint8_t mask_len, enum pfxv_state *result);
+
+/**
  * @brief Validates the origin of a BGP-Route and returns a list of pfx_record that decided the result.
  * @param[in] pfx_table pfx_table to use.
  * @param[out] reason Pointer to a memory area that will be used as array of pfx_records. The memory area will be overwritten. Reason must point to NULL or an allocated memory area.
