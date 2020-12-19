@@ -468,7 +468,7 @@ class ValidationResult(object):
             for record in ffi.unpack(reason_records[0], reason_len):
                 self._reason.append(Reason(prefix_length, asn, record))
 
-        elif (not ffi.typeof(reason_records) is ffi.typeof('struct pfx_record **')):
+        elif (reason_records and not ffi.typeof(reason_records) is ffi.typeof('struct pfx_record **')):
             raise TypeError("reason_records must be struct pfx_record **")
         else:
             self._reason = None
