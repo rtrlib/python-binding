@@ -32,14 +32,12 @@ class PfxTable(object):
     @classmethod
     def _create_pfx_record(cls, asn, ip, min_length, max_length):
         record = ffi.new('struct pfx_record *')
-        prefix = ffi.new('struct lrtr_ip_addr *')
-        lib.lrtr_ip_str_to_addr(ip.encode('ascii'), prefix)
+        lib.lrtr_ip_str_to_addr(ip.encode('ascii'), ffi.addressof(record, 'prefix'))
 
         record.asn = asn
         record.min_len = min_length
         record.max_len = max_length
         record.socket = ffi.NULL
-        record.prefix = prefix[0]
 
         return record
 
