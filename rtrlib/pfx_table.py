@@ -29,8 +29,8 @@ class PfxTable(object):
                            ffi.NULL)
         self.closed = False
 
-    @classmethod
-    def _create_pfx_record(cls, asn, ip, min_length, max_length):
+    @staticmethod
+    def _create_pfx_record(asn, ip, min_length, max_length):
         record = ffi.new('struct pfx_record *')
         lib.lrtr_ip_str_to_addr(ip.encode('ascii'), ffi.addressof(record, 'prefix'))
 
