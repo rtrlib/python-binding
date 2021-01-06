@@ -42,4 +42,5 @@ setup(
         "six",
         'enum34; python_version < "3.4.0"'
     ],
+    test_suite="tests.suite"
 )
