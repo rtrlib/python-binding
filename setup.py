@@ -37,5 +37,9 @@ setup(
     ),
     setup_requires=["cffi>=1.6.0"],
     cffi_modules=["ffi_build.py:ffibuilder"],
-    install_requires=["cffi>=1.6.0", "six", 'enum34'],
+    install_requires=[
+        "cffi>=1.6.0",
+        "six",
+        'enum34; python_version < "3.4.0"'
+    ],
 )
