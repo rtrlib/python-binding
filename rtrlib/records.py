@@ -3,7 +3,7 @@
 rtrlib.records
 --------------
 
-Collection of wrappers for \*record structs of rtrlib
+Collection of wrappers for *record structs of rtrlib
 """
 
 from __future__ import absolute_import, unicode_literals
